@@ -9,26 +9,61 @@ const myApp = {};
 myApp.main = function main(){
   console.log("Main loaded")
 
+  let json_data = parse_json("text_data");
+  
+  myApp.field_objects = get_unique_field_objs(json_data);
+  myApp.field_names = Object.keys(myApp.field_objects);
+
+  add_elem_to("content", true);
+
   create_widget();
   create_btn();
-
-
 }
+
+// ======================================================================
+// Data Input
+// ======================================================================
+
+function parse_json(data){
+	const text_data = document.getElementById(data).value
+	return JSON.parse(text_data)
+}
+
+function get_unique_field_objs(json_data) {
+    const field_names_set = new Set();
+    const field_objs = json_data.layers
+        .reduce((field_obj, lyr) => {
+            // Gets a unique field object for each field by fieldname
+            // fieldName = object
+            lyr.popupInfo.fieldInfos.forEach(field => {
+                if (field_names_set.has(field.fieldName) == false){
+                    field_names_set.add(field.fieldName);
+                    field_obj[field.fieldName] = (field)
+                }
+            })
+      return field_obj
+    }, {});
+  return field_objs
+}
+
 // ======================================================================
 // Add Elements
 // ======================================================================
+
+
+
 
 function create_widget(){
     myApp.Widget = {
       init: function(){
         this.id = null;
         this.elem = null;
+        return this
       },
       builder: function(parent){
         parent.appendChild(this.elem);
       },
     }
-    //return Widget
   }
 
 
@@ -45,8 +80,8 @@ function btn_factory(){
         this.elem.innerText = data
     }
 
-    Button.build = function(item){
-        this.builder(item);
+    Button.build = function(parent){
+        this.builder(parent);
     }
     return Button
 }
