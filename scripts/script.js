@@ -14,10 +14,13 @@ myApp.main = function main(){
   myApp.field_objects = get_unique_field_objs(json_data);
   myApp.field_names = Object.keys(myApp.field_objects);
 
-  add_elem_to("content", true);
+  widget_shell();
 
-  create_widget();
-  create_btn();
+  const fields = add_fields("content");
+
+  //console.log(fields)
+  
+  add_btn(fields);
 }
 
 // ======================================================================
@@ -28,6 +31,7 @@ function parse_json(data){
 	const text_data = document.getElementById(data).value
 	return JSON.parse(text_data)
 }
+
 
 function get_unique_field_objs(json_data) {
     const field_names_set = new Set();
@@ -50,22 +54,59 @@ function get_unique_field_objs(json_data) {
 // Add Elements
 // ======================================================================
 
-
-
-
-function create_widget(){
+function widget_shell(){
     myApp.Widget = {
       init: function(){
         this.id = null;
         this.elem = null;
         return this
       },
-      builder: function(parent){
+      addTo: function(parent){
         parent.appendChild(this.elem);
       },
     }
   }
 
+
+function field_factory(){
+    const field = Object.create(myApp.Widget)
+
+    field.setup = function(id){
+        this.id = id;
+        this.elem = document.createElement("div");
+        this.elem.className = "aligner-div";
+    },
+    field.define = function(){
+        this.elem.innerHTML = null;
+    },
+    field.addBtnPanel = function(){
+        this.BtnPanel = document.createElement("div");
+        this.BtnPanel.className = "btn_panel";
+        //this.add_span = document.createElement("span");
+        this.elem.appendChild(this.BtnPanel);
+    },
+    field.builder = function(parent){
+        this.addTo(parent);
+    }
+    return field
+}
+
+
+function add_fields(elem_id){
+    const parent = document.getElementById(elem_id);
+    const fields = [];
+
+    myApp.field_names.forEach(fieldname => {
+        let field = Object.create(field_factory());
+        field.setup(fieldname);
+        field.elem.innerHTML = "<label class='lbl_class'>" + fieldname + "</label>";
+        field.addTo(parent);
+        field.addBtnPanel();
+        fields.push(field); 
+        }
+    );
+    return fields
+}
 
 function btn_factory(){
     const Button = Object.create(myApp.Widget);
@@ -74,43 +115,39 @@ function btn_factory(){
         this.init();
         this.id = id;
         this.elem = document.createElement("btn");
-    }
-    
+        this.width = 20;
+        this.height = 20;
+    },
     Button.define = function(data){
         this.elem.innerText = data
-    }
-
-    Button.build = function(parent){
-        this.builder(parent);
+    },
+    Button.builder = function(parent){
+        this.addTo(parent);
     }
     return Button
 }
 
-function create_btn(){
-    let parent = document.getElementById("testing");
-    
-    let btn1 = Object.create(btn_factory());
-    let btn2 = Object.create(btn_factory());
-    
-    btn1.setup("fieldname3");
-    btn1.define("test7");
-    btn1.build(parent);
 
-    btn2.setup("fieldname9");
-    btn2.define("test9");
-    btn2.build(parent);
-    
-    console.log(btn1.id)
-    console.log(btn2.id)
+function add_btn(fields){
+    fields.forEach(field => {
+        const parent = field.BtnPanel;
+        let btn = Object.create(btn_factory());
+        btn.setup("fieldname");
+        btn.define("test");
+        btn.addTo(parent);
+    });
+
+    //const parent = document.getElementsByClassName("btn_panel")[0];
+    //console.log(btn1.id)
 }
-
-
-
 
 
 // ======================================================================
 // Event Listeners
 // ======================================================================
+
+
+
 
 
 // ======================================================================
@@ -119,6 +156,9 @@ function create_btn(){
 
 
 
+
+// ======================================================================
+// On-Load Handle
 // ======================================================================
 // Onload fuction alt. to JQuery ready method.
 myApp.initApplication = function(){
