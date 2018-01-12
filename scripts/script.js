@@ -3,7 +3,7 @@
 const myApp = {};
 
 // ======================================================================
-// MAIN
+// Main
 // ======================================================================
 
 myApp.main = function main(){
@@ -20,11 +20,13 @@ myApp.main = function main(){
 
   //console.log(fields)
   
-  add_btn(fields);
+  add_btns(fields);
+
+  test()
 }
 
 // ======================================================================
-// Data Input
+// Process Data
 // ======================================================================
 
 function parse_json(data){
@@ -72,6 +74,7 @@ function field_factory(){
     const field = Object.create(myApp.Widget)
 
     field.setup = function(id){
+        this.init();
         this.id = id;
         this.elem = document.createElement("div");
         this.elem.className = "aligner-div";
@@ -82,7 +85,6 @@ function field_factory(){
     field.addBtnPanel = function(){
         this.BtnPanel = document.createElement("div");
         this.BtnPanel.className = "btn_panel";
-        //this.add_span = document.createElement("span");
         this.elem.appendChild(this.BtnPanel);
     },
     field.builder = function(parent){
@@ -108,7 +110,7 @@ function add_fields(elem_id){
     return fields
 }
 
-function btn_factory(){
+function Btn_Factory(){
     const Button = Object.create(myApp.Widget);
   
     Button.setup = function(id){
@@ -116,10 +118,12 @@ function btn_factory(){
         this.id = id;
         this.elem = document.createElement("btn");
         this.width = 20;
-        this.height = 20;
+        this.height = 20;    
     },
-    Button.define = function(data){
-        this.elem.innerText = data
+    Button.define = function(){
+        this.elem.innerText = null;
+        this.toggle = 0;
+        this.className = null;
     },
     Button.builder = function(parent){
         this.addTo(parent);
@@ -127,18 +131,80 @@ function btn_factory(){
     return Button
 }
 
+function Image_Factory(){
+    const Image = Object.create(myApp.Widget);
 
-function add_btn(fields){
+    Image.setup = function(){
+        this.init();
+        this.elem = document.createElement("img");
+        this.elem.width = 20;
+        this.elem.height = 20; 
+    },
+    Image.define = function(){
+        this.elem.src = "#";
+        this.elem.alt = null;
+        this.elem.title = null;
+    },
+    Image.builder = function(parent){
+        this.addTo(parent)
+    }
+    return Image
+}
+
+function add_btns(fields){
+    console.log(fields)
     fields.forEach(field => {
-        const parent = field.BtnPanel;
-        let btn = Object.create(btn_factory());
-        btn.setup("fieldname");
-        btn.define("test");
-        btn.addTo(parent);
+        //const parent = field.BtnPanel;
+        let fragment = document.createDocumentFragment();
+        fragment = add_btn(field, "Edit Label", "images/label.png", "Edit Label", fragment);
+        fragment = add_btn(field, "Visible", "images/light_on.svg", "Visible", fragment);
+        fragment = add_btn(field, "Separator On", "images/comma_on.png", "Separator On", fragment);
+        fragment = add_btn(field, "Date", "images/date.png", "Date", fragment);
+        fragment = add_btn(field, "Digit", "images/decimal.png", "Digit", fragment);
+        field.BtnPanel.appendChild(fragment);
     });
+}
 
-    //const parent = document.getElementsByClassName("btn_panel")[0];
-    //console.log(btn1.id)
+function add_btn(field, title, src, alt, fragment){
+    const btn = Object.create(Btn_Factory());
+    const img = Object.create(Image_Factory());
+
+    btn.setup(field.id);
+    btn.define();
+
+    img.setup();
+    img.elem.title = title;
+    img.elem.src = src;
+    img.elem.alt = alt;
+    img.addTo(btn.elem);
+
+    fragment.appendChild(btn.elem)
+    return fragment
+}
+
+
+function Test_Factory(){
+    const Test = Object.create(field_factory());
+
+    Test.setup2 = function(){
+        this.init();
+        this.elem = document.createElement("img");
+    },
+    Test.define2 = function(){
+        this.test = null
+    },
+    Test.builder2 = function(parent){
+        this.addTo(parent)
+    }
+    return Test
+}
+
+function test(){
+    const test = Object.create(Test_Factory());
+
+    test.setup();
+    console.log(test.elem)
+
 }
 
 
@@ -160,7 +226,7 @@ function add_btn(fields){
 // ======================================================================
 // On-Load Handle
 // ======================================================================
-// Onload fuction alt. to JQuery ready method.
+
 myApp.initApplication = function(){
   console.log("App Loaded.\n");
   myApp.main();
