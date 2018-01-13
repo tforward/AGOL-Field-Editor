@@ -1,6 +1,7 @@
 "use strict";
 
-// This JS file uses the OOLO Design Pattern
+// This JS file uses the OOLO Design Pattern, see link below for more info:
+// https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
 
 const myApp = {};
 
@@ -52,19 +53,19 @@ function get_unique_field_objs(json_data) {
 }
 
 // ======================================================================
-// Add Elements
+// Add elments
 // ======================================================================
 
 function WidgetShell(){
     // Test this with the other style to see how it works again let widget
     myApp.Widget = {
-      init: function(id, elem){
+      init: function(id, elm){
         this.id = id;
-        this.elem = elem;
+        this.elm = elm;
         return this
       },
       addTo: function(parent){
-        parent.appendChild(this.elem);
+        parent.appendChild(this.elm);
       },
     }
   }
@@ -75,16 +76,16 @@ function FieldDelegator(){
 
     field.setup = function(id){
         this.init(id, document.createElement("div"));
-        this.elem.className = "aligner-div";
+        this.elm.className = "aligner-div";
         return this
     },
     field.define = function(){
-        this.elem.innerHTML = null;
+        this.elm.innerHTML = null;
     },
     field.addBtnPanel = function(){
         this.BtnPanel = document.createElement("div");
         this.BtnPanel.className = "btn_panel";
-        this.elem.appendChild(this.BtnPanel);
+        this.elm.appendChild(this.BtnPanel);
     },
     field.builder = function(parent){
         this.addTo(parent);
@@ -93,14 +94,14 @@ function FieldDelegator(){
 }
 
 
-function add_fields(elem_id){
-    const parent = document.getElementById(elem_id);
+function add_fields(elm_id){
+    const parent = document.getElementById(elm_id);
     const fields = [];
 
     myApp.field_names.forEach(fieldname => {
         let field = Object.create(FieldDelegator());
         field.setup(fieldname);
-        field.elem.innerHTML = "<label class='lbl_class'>" + fieldname + "</label>";
+        field.elm.innerHTML = "<label class='lbl_class'>" + fieldname + "</label>";
         field.addTo(parent);
         field.addBtnPanel();
         fields.push(field); 
@@ -117,9 +118,9 @@ function BtnDelegator(){
         return this
     },
     Button.define = function(){
-        this.elem.name = null;
-        this.elem.toggle = 0;
-        this.elem.className = null;
+        this.elm.name = null;
+        this.elm.toggle = 0;
+        this.elm.className = null;
     },
     Button.builder = function(parent){
         this.addTo(parent);
@@ -132,14 +133,14 @@ function ImageDelegator(){
 
     Image.setup = function(id){
         this.init(id, document.createElement("img"));
-        this.elem.width = 20;
-        this.elem.height = 20; 
+        this.elm.width = 20;
+        this.elm.height = 20; 
         return this
     },
     Image.define = function(){
-        this.elem.src = "#";
-        this.elem.alt = null;
-        this.elem.title = null;
+        this.elm.src = "#";
+        this.elm.alt = null;
+        this.elm.title = null;
     },
     Image.builder = function(parent){
         this.addTo(parent)
@@ -165,15 +166,15 @@ function add_btn(field, title, src, alt, fragment){
     const img = Object.create(ImageDelegator());
 
     btn.setup(field.id);
-    btn.elem.className = "test"
+    btn.elm.className = "test"
 
     img.setup(field.id);
-    img.elem.title = title;
-    img.elem.src = src;
-    img.elem.alt = alt;
-    img.addTo(btn.elem);
+    img.elm.title = title;
+    img.elm.src = src;
+    img.elm.alt = alt;
+    img.addTo(btn.elm);
 
-    fragment.appendChild(btn.elem)
+    fragment.appendChild(btn.elm)
     return fragment
 }
 
