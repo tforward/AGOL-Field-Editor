@@ -53,20 +53,20 @@ function get_unique_field_objs(json_data) {
 }
 
 // ======================================================================
-// Add elments
+// Add elements
 // ======================================================================
 
 function WidgetShell(){
     // Test this with the other style to see how it works again let widget
     myApp.Widget = {
-      init: function(id, elm){
+      init: function(id, elem){
         this.id = id;
-        this.elm = elm;
+        this.elem = elem;
         return this
       },
       addTo: function(parent){
-        parent.appendChild(this.elm);
-      },
+        parent.appendChild(this.elem);
+      }
     }
   }
 
@@ -76,32 +76,32 @@ function FieldDelegator(){
 
     field.setup = function(id){
         this.init(id, document.createElement("div"));
-        this.elm.className = "aligner-div";
+        this.elem.className = "aligner-div";
         return this
-    },
+    };
     field.define = function(){
-        this.elm.innerHTML = null;
-    },
+        this.elem.innerHTML = null;
+    };
     field.addBtnPanel = function(){
         this.BtnPanel = document.createElement("div");
         this.BtnPanel.className = "btn_panel";
-        this.elm.appendChild(this.BtnPanel);
-    },
+        this.elem.appendChild(this.BtnPanel);
+    };
     field.builder = function(parent){
         this.addTo(parent);
-    }
+    };
     return field
 }
 
 
-function add_fields(elm_id){
-    const parent = document.getElementById(elm_id);
+function add_fields(elem_id){
+    const parent = document.getElementById(elem_id);
     const fields = [];
 
     myApp.field_names.forEach(fieldname => {
         let field = Object.create(FieldDelegator());
         field.setup(fieldname);
-        field.elm.innerHTML = "<label class='lbl_class'>" + fieldname + "</label>";
+        field.elem.innerHTML = "<label class='lbl_class'>" + fieldname + "</label>";
         field.addTo(parent);
         field.addBtnPanel();
         fields.push(field); 
@@ -115,16 +115,21 @@ function BtnDelegator(){
   
     Button.setup = function(id){
         this.init(id, document.createElement("btn"));
+        this.elem.addEventListener("click", this.onClick.bind(this, id));
         return this
-    },
+    };
     Button.define = function(){
-        this.elm.name = null;
-        this.elm.toggle = 0;
-        this.elm.className = null;
-    },
+        this.elem.name = "ghbbh";
+        this.elem.toggle = 0;
+        this.elem.className = null;
+    };
     Button.builder = function(parent){
         this.addTo(parent);
-    }
+    };
+    Button.onClick = function(id) {
+        console.log( "Button '" + id + "' clicked!" );
+        console.log(this.elem.name);
+    };
     return Button
 }
 
@@ -133,18 +138,18 @@ function ImageDelegator(){
 
     Image.setup = function(id){
         this.init(id, document.createElement("img"));
-        this.elm.width = 20;
-        this.elm.height = 20; 
+        this.elem.width = 20;
+        this.elem.height = 20; 
         return this
-    },
+    };
     Image.define = function(){
-        this.elm.src = "#";
-        this.elm.alt = null;
-        this.elm.title = null;
-    },
+        this.elem.src = "#";
+        this.elem.alt = null;
+        this.elem.title = null;
+    };
     Image.builder = function(parent){
         this.addTo(parent)
-    }
+    };
     return Image
 }
 
@@ -166,15 +171,18 @@ function add_btn(field, title, src, alt, fragment){
     const img = Object.create(ImageDelegator());
 
     btn.setup(field.id);
-    btn.elm.className = "test"
+    //btn.elem.className = "test"
+
+    btn.define()
+    //console.log(btn.elem)
 
     img.setup(field.id);
-    img.elm.title = title;
-    img.elm.src = src;
-    img.elm.alt = alt;
-    img.addTo(btn.elm);
+    img.elem.title = title;
+    img.elem.src = src;
+    img.elem.alt = alt;
+    img.addTo(btn.elem);
 
-    fragment.appendChild(btn.elm)
+    fragment.appendChild(btn.elem)
     return fragment
 }
 
