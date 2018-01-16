@@ -3,7 +3,7 @@
 // This JS file uses the OOLO Design Pattern, see link below for more info:
 // https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
 
-const myApp = {};
+const myApp = Object.create(null);
 
 // ======================================================================
 // Main
@@ -62,6 +62,7 @@ function WidgetShell(){
       init: function(id, elem){
         this.id = id;
         this.elem = elem;
+        this.name = null;
         return this
       },
       addTo: function(parent){
@@ -115,23 +116,31 @@ function BtnDelegator(){
   
     Button.setup = function(id){
         this.init(id, document.createElement("btn"));
-        this.elem.addEventListener("click", this.onClick.bind(this, id));
+        this.elem.addEventListener("click", this.onClick.bind(this));
         return this
     };
     Button.define = function(){
-        this.elem.name = "ghbbh";
+        //console.log(myApp.field_objects[this.id])
         this.elem.toggle = 0;
+        this.elem.value = null;
         this.elem.className = null;
     };
     Button.builder = function(parent){
         this.addTo(parent);
     };
-    Button.onClick = function(id) {
-        console.log( "Button '" + id + "' clicked!" );
-        console.log(this.elem.name);
+    Button.onClick = function() {
+        this.elem.toggle ^= 1;
+        btnAction(this.id, this.elem);
     };
     return Button
 }
+
+function btnAction(id, elem){
+    console.log(id + " " + elem.name + " " + elem.toggle)
+    let imgNode = elem.firstElementChild;
+    console.log(imgNode)
+}
+
 
 function ImageDelegator(){
     const Image = Object.create(myApp.Widget);
@@ -156,26 +165,25 @@ function ImageDelegator(){
 function add_btns(fields){
     fields.forEach(field => {
         let fragment = document.createDocumentFragment();
-        fragment = add_btn(field, "Edit Label", "images/label.png", "Edit Label", fragment);
-        fragment = add_btn(field, "Visible", "images/light_on.svg", "Visible", fragment);
-        fragment = add_btn(field, "Separator On", "images/comma_on.png", "Separator On", fragment);
-        fragment = add_btn(field, "Date", "images/date.png", "Date", fragment);
-        fragment = add_btn(field, "Digit", "images/decimal.png", "Digit", fragment);
+        fragment = add_btn(field, "Edit Label", "images/label.png", "Edit Label", "Label", fragment);
+        fragment = add_btn(field, "Visible", "images/light_on.svg", "Visible", "Visiblity", fragment);
+        fragment = add_btn(field, "Separator On", "images/comma_on.png", "Separator On", "Seperator", fragment);
+        fragment = add_btn(field, "Date", "images/date.png", "Date", "Date", fragment);
+        fragment = add_btn(field, "Digit", "images/decimal.png", "Digit", "Digit", fragment);
         field.BtnPanel.appendChild(fragment);
     });
     return fields
 }
 
-function add_btn(field, title, src, alt, fragment){
+function add_btn(field, title, src, alt, name, fragment){
     const btn = Object.create(BtnDelegator());
     const img = Object.create(ImageDelegator());
 
     btn.setup(field.id);
-    //btn.elem.className = "test"
-
     btn.define()
-    //console.log(btn.elem)
-
+    // This way below will show-up in the DOM directly
+    //btn.elem.setAttribute("name", name)
+    btn.elem.name = name;
     img.setup(field.id);
     img.elem.title = title;
     img.elem.src = src;
