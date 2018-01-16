@@ -120,7 +120,6 @@ function BtnDelegator(){
         return this
     };
     Button.define = function(){
-        //console.log(myApp.field_objects[this.id])
         this.elem.toggle = 0;
         this.elem.value = null;
         this.elem.className = null;
@@ -134,13 +133,6 @@ function BtnDelegator(){
     };
     return Button
 }
-
-function btnAction(id, elem){
-    console.log(id + " " + elem.name + " " + elem.toggle)
-    let imgNode = elem.firstElementChild;
-    console.log(imgNode)
-}
-
 
 function ImageDelegator(){
     const Image = Object.create(myApp.Widget);
@@ -194,23 +186,156 @@ function add_btn(field, title, src, alt, name, fragment){
     return fragment
 }
 
+// ======================================================================
+// Logic Functions
+// ======================================================================
+
+function btnAction(id, elem){
+    //console.log(id + " " + elem.name + " " + elem.toggle)
+
+    switch(elem.name){
+        case "Label":
+            btnLabelStyle(id, elem)
+            break;
+        case "Visiblity":
+            setVisiblity(id);
+            btnVisibilityStyle(id, elem);
+            break;
+        case "Seperator":
+            setSeperator(id);
+            btnSeparatorStyle(id, elem);
+            break;
+        case "Date":
+            setDate(id, elem);
+            btnDateStyle(id, elem);
+            break;
+        case "Digit":
+            btnDecimStyle(id, elem);
+            break;
+        default:
+            console.log("btnAction case not found: ", elem.name)
+    }
+}
+
+// ======================================================================
+// Setter Functions
+// ======================================================================
+
+function setVisiblity(id){
+    const field_obj = myApp.field_objects[id];
+    field_obj.visible = !field_obj.visible;
+}
+
+function setSeperator(id){
+    const field_obj = myApp.field_objects[id];
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
+        field_obj.format.digitSeparator = !field_obj.format.digitSeparator;
+    }
+}
+
+function setDate(id, elem){
+    const field_obj = myApp.field_objects[id];
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
+        //This part of the toggle need to be in the list of dates to turn it off completely and not here
+        //field_obj.format["dateFormat"] = !field_obj.format["dateFormat"];
+        //date_dropdown(fieldname);
+        const add_div = document.createElement("div");
+        const add_div2 = document.createElement("div");
+        add_div.className = "dropdown"
+        add_div2.className = "dropdown-content";
+        add_div2.innerText = "test"
+        add_div.appendChild(add_div2);
+        elem.appendChild(add_div);
+    }
+}
+
 
 
 
 // ======================================================================
-// Event Listeners
+// Style Functions
 // ======================================================================
 
+function btnLabelStyle(id, elem){
+    const imgNode = elem.firstElementChild;
 
+    if (elem.toggle == 0){
+        imgNode.src = "images/label.png";
+        imgNode.alt, imgNode.title = "Edit Label";
+        imgNode.className = null;
+    }
+    else{
+        imgNode.src = "images/set_label.png";
+        imgNode.alt, imgNode.title = "Set Label";
+    }
+}
 
+function btnVisibilityStyle(id, elem){
+    const imgNode = elem.firstElementChild;
+    imgNode.src = elem.toggle ^1 ? "images/light_on.svg" : "images/light_off.svg";
+    imgNode.alt = elem.toggle ^1 ? "Visible" : "Hidden" ;
+    imgNode.title = elem.toggle ^1 ? "Visible" : "Hidden" ;
+}
 
+function btnSeparatorStyle(id, elem){
+    const imgNode = elem.firstElementChild;
+    const field_obj = myApp.field_objects[id];
 
-// ======================================================================
-// Functions
-// ======================================================================
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
+        imgNode.src = !field_obj.format["digitSeparator"] === false ? "images/comma_off.png" : "images/comma_on.png";
+        imgNode.alt, imgNode.title =  !field_obj.format["digitSeparator"] === false ? "Separator Off" : "Separator On";
+    }
+    else{
+        imgNode.src = "images/comma_na.png";
+        imgNode.alt, imgNode.title =  "N/A"
+        imgNode.className = "notApplicable";
+    }
+}
 
+function btnDateStyle(id, elem){
+    const imgNode = elem.firstElementChild;
+    const field_obj = myApp.field_objects[id];
+    const date = ["shortDate", "shortDateLE", "longMonthDayYear", "dayShortMonthYear",
+    "longDate", "longMonthYear", "shortMonthYear", "year"];
 
+    const dateTime = ["shortDateLongTime", "shortDateLELongTime", "shortDateShortTime",
+    "shortDateLEShortTime", "shortDateShortTime24", "shortDateLEShortTime24",
+     "shortDateShortTime24", "shortDateLEShortTime24"];
 
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
+        const d = field_obj.format["dateFormat"];
+
+        if (dateTime.indexOf(d) > -1){
+            imgNode.src = "images/dateTime.png";
+            imgNode.alt, imgNode.title =  d;
+        }
+        else if(date.indexOf(d) > -1){
+            imgNode.src = "images/date.png";
+            imgNode.alt, imgNode.title =  d;
+        }
+    }
+    else{
+        imgNode.src = "images/date_na.png";
+        imgNode.alt, imgNode.title =  "N/A";
+        imgNode.className = "notApplicable";
+    }
+}
+
+function btnDecimStyle(id, elem){
+    const field_obj = myApp.field_objects[id];
+    const imgNode = elem.firstElementChild;
+
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("places")){
+        const decimals = field_obj.format["places"];
+        imgNode.src = "images/decimal.png";
+        imgNode.alt, imgNode.title =  'Has ' + decimals + ' Decimal(s)';
+    }
+    else{
+        imgNode.src = "images/na.png";
+        imgNode.alt, imgNode.title =  "N/A"
+        imgNode.className = "notApplicable";
+    }
+}
 
 // ======================================================================
 // On-Load Handle
