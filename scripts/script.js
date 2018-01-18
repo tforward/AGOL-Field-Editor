@@ -186,6 +186,51 @@ function add_btn(field, title, src, alt, name, fragment){
     return fragment
 }
 
+
+function createDateDropDown(elem){
+    const dropdown = document.createElement("div");
+    const content_div = document.createElement("div");
+    content_div.className = "dropdown-content";
+    add_date_content(content_div);
+    dropdown.appendChild(content_div);
+    elem.appendChild(dropdown);
+    return dropdown
+}
+
+function add_date_content(content_div){
+    let fragment = document.createDocumentFragment();
+    const date_arr = dateArray();
+
+    date_arr.forEach(data => {
+        let a = document.createElement("a");
+        a.textContent = data[1]; // text
+        a.dataset.value = data[0]; // value;
+        a.href = "#"; // placeholder
+        a.title = data[0] // tooltip
+        fragment.appendChild(a);
+    });
+    content_div.appendChild(fragment);
+}
+
+function dateArray(){
+    return [
+        ["year", "1997"],
+        ["shortMonthYear",	"Dec 1997"],
+        ["longMonthYear",	"December 1997"],
+        ["shortDate", "12/21/1997"],
+        ["shortDateLE", "21/12/1997"],
+        ["dayShortMonthYear", "21 Dec 1997"],
+        ["longMonthDayYear", "December 21,1997"],
+        ["longDate",	"Sunday, December 21, 1997"],
+        ["shortDateShortTime",	"12/21/1997 6:00 PM"],
+        ["shortDateLEShortTime",	"21/12/1997 6:00 PM"],
+        ["shortDateLongTime", "12/21/1997 6:00:00 PM"],
+        ["shortDateLELongTime",	"21/12/1997 6:00:00 PM"],
+        ["shortDateShortTime24",	"12/21/1997 18:00"],
+        ["shortDateLEShortTime24",	"21/12/1997 18:00"],
+    ]
+}
+
 // ======================================================================
 // Logic Functions
 // ======================================================================
@@ -218,7 +263,7 @@ function btnAction(id, elem){
 }
 
 // ======================================================================
-// Setter Functions
+// Set Functions
 // ======================================================================
 
 function setVisiblity(id){
@@ -236,19 +281,21 @@ function setSeperator(id){
 function setDate(id, elem){
     const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
-        //This part of the toggle need to be in the list of dates to turn it off completely and not here
-        //field_obj.format["dateFormat"] = !field_obj.format["dateFormat"];
-        //date_dropdown(fieldname);
-        const add_div = document.createElement("div");
-        const add_div2 = document.createElement("div");
-        add_div.className = "dropdown"
-        add_div2.className = "dropdown-content";
-        add_div2.innerText = "test"
-        add_div.appendChild(add_div2);
-        elem.appendChild(add_div);
+        let dropdown = elem.getElementsByClassName("dropdown")[0];
+
+        if (elem.toggle === 1){
+            // If the Date Dropdown does not exist for this element, create it.
+            if (dropdown === undefined){
+                dropdown = createDateDropDown(elem);
+            }
+            dropdown.className = "dropdown"
+            // TODO IM Here not to set the default value of the date and be able to set it
+        }
+        else{
+            dropdown.className = "hidden"
+        }
     }
 }
-
 
 
 
