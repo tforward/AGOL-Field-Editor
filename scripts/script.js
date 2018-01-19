@@ -190,6 +190,14 @@ function add_btn(field, title, src, alt, name, fragment){
     return fragment
 }
 
+function createDropDown(id, elem, func){
+    const dropdown = document.createElement("div");
+    const content_div = func();
+    dropdown.appendChild(content_div);
+    elem.appendChild(dropdown);
+    return dropdown
+}
+
 // ======================================================================
 // Logic Functions
 // ======================================================================
@@ -197,7 +205,7 @@ function add_btn(field, title, src, alt, name, fragment){
 function btnAction(id, elem){
     //console.log(id + " " + elem.name + " " + elem.toggle)
 
-    // TODO need to build-out redo this filters
+    // TODO need to build-out redo the filters
 
     switch(elem.name){
         case "Label":
@@ -217,13 +225,60 @@ function btnAction(id, elem){
             btnDateStyle(id, elem);
             break;
         case "Digit":
-            // TODO: I'm Hear need to make the implementation for DEcim
+            // TODO: I'm here need to make the implementation for DEcim
             // Plan to get it as simple as possible at first, just an input and current # decimals that's it
+            initalizeDigit(id, elem);
             btnDecimStyle(id, elem);
             break;
         default:
             console.log("btnAction case not found: ", elem.name)
     }
+}
+
+// ======================================================================
+//  Digit Button
+// ======================================================================
+
+// TODO I think I can refactor this function with the other one into one function
+function initalizeDigit(id, elem){
+    const field_obj = myApp.field_objects[id];
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
+        let digit_dropdown = elem.getElementsByClassName("dropdown")[0];
+
+        if (elem.toggle === 1){
+            let digits = field_obj.format["places"];
+            // If the Digit Dropdown does not exist for this element, create it.
+            if (digit_dropdown === undefined){
+                digit_dropdown = createDropDown(id, elem, addDigitContent.bind(null, id, digits));
+            }
+            digit_dropdown.className = "dropdown";
+
+            let anchors = digit_dropdown.getElementsByTagName("a");
+            let seperator = field_obj.format["digitSeparator"];
+            
+            let index = find_attribute_value(anchors, digits);
+            //anchors[index].id = "digit_selected";
+        }
+        else{
+            digit_dropdown.className = "hidden";
+        }
+    }
+}
+
+function addDigitContent(id, digits){
+    const content_div = document.createElement("div");
+    const pTag = document.createElement("p");
+    let fragment = document.createDocumentFragment();
+   
+    content_div.className = "dropdown-content";
+
+    pTag.innerText = "Digits: " + digits;
+
+
+    fragment.appendChild(pTag);
+
+    content_div.appendChild(fragment);
+    return content_div
 }
 
 // ======================================================================
@@ -249,13 +304,6 @@ function dateArray(){
     ]
 }
 
-function createDateDropDown(id, elem){
-    const dropdown = document.createElement("div");
-    const content_div = add_date_content(id);
-    dropdown.appendChild(content_div);
-    elem.appendChild(dropdown);
-    return dropdown
-}
 
 function add_date_content(id){
     const content_div = document.createElement("div");
@@ -283,7 +331,7 @@ function initalizeDate(id, elem){
         if (elem.toggle === 1){
             // If the Date Dropdown does not exist for this element, create it.
             if (dropdown === undefined){
-                dropdown = createDateDropDown(id, elem);
+                dropdown = createDropDown(id, elem, add_date_content.bind(null, id));
             }
             dropdown.className = "dropdown";
 
