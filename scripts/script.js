@@ -3,7 +3,10 @@
 // This JS file uses the OOLO Design Pattern, see link below for more info:
 // https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
 
+// Create a empty object with no __proto__
 const myApp = Object.create(null);
+
+
 
 // ======================================================================
 // Main
@@ -24,6 +27,7 @@ myApp.main = function main(){
   add_btns(fields);
 
   //console.log(fields)
+
 }
 
 // ======================================================================
@@ -186,31 +190,45 @@ function add_btn(field, title, src, alt, name, fragment){
     return fragment
 }
 
+// ======================================================================
+// Logic Functions
+// ======================================================================
 
-function createDateDropDown(elem){
-    const dropdown = document.createElement("div");
-    const content_div = document.createElement("div");
-    content_div.className = "dropdown-content";
-    add_date_content(content_div);
-    dropdown.appendChild(content_div);
-    elem.appendChild(dropdown);
-    return dropdown
+function btnAction(id, elem){
+    //console.log(id + " " + elem.name + " " + elem.toggle)
+
+    // TODO need to build-out redo this filters
+
+    switch(elem.name){
+        case "Label":
+            //TO enable this
+            btnLabelStyle(id, elem)
+            break;
+        case "Visiblity":
+            setVisiblity(id);
+            btnVisibilityStyle(id, elem);
+            break;
+        case "Seperator":
+            setSeperator(id);
+            btnSeparatorStyle(id, elem);
+            break;
+        case "Date":
+            initalizeDate(id, elem);
+            btnDateStyle(id, elem);
+            break;
+        case "Digit":
+            // TODO: I'm Hear need to make the implementation for DEcim
+            // Plan to get it as simple as possible at first, just an input and current # decimals that's it
+            btnDecimStyle(id, elem);
+            break;
+        default:
+            console.log("btnAction case not found: ", elem.name)
+    }
 }
 
-function add_date_content(content_div){
-    let fragment = document.createDocumentFragment();
-    const date_arr = dateArray();
-
-    date_arr.forEach(data => {
-        let a = document.createElement("a");
-        a.textContent = data[1]; // text
-        a.dataset.value = data[0]; // value;
-        a.href = "#"; // placeholder
-        a.title = data[0] // tooltip
-        fragment.appendChild(a);
-    });
-    content_div.appendChild(fragment);
-}
+// ======================================================================
+//  Date Button
+// ======================================================================
 
 function dateArray(){
     return [
@@ -231,39 +249,57 @@ function dateArray(){
     ]
 }
 
-// ======================================================================
-// Logic Functions
-// ======================================================================
+function createDateDropDown(id, elem){
+    const dropdown = document.createElement("div");
+    const content_div = add_date_content(id);
+    dropdown.appendChild(content_div);
+    elem.appendChild(dropdown);
+    return dropdown
+}
 
-function btnAction(id, elem){
-    //console.log(id + " " + elem.name + " " + elem.toggle)
+function add_date_content(id){
+    const content_div = document.createElement("div");
+    let fragment = document.createDocumentFragment();
+    const date_arr = dateArray();
+    content_div.className = "dropdown-content";
+    date_arr.forEach(data => {
+        let a = document.createElement("a");
+        a.textContent = data[1]; // text
+        a.dataset.value = data[0]; // value;
+        a.href = "#"; // placeholder
+        a.title = data[0] // tooltip
+        a.addEventListener("click", setDate.bind(null, data[0], id));
+        fragment.appendChild(a);
+    });
+    content_div.appendChild(fragment);
+    return content_div
+}
 
-    switch(elem.name){
-        case "Label":
-            btnLabelStyle(id, elem)
-            break;
-        case "Visiblity":
-            setVisiblity(id);
-            btnVisibilityStyle(id, elem);
-            break;
-        case "Seperator":
-            setSeperator(id);
-            btnSeparatorStyle(id, elem);
-            break;
-        case "Date":
-            setDate(id, elem);
-            btnDateStyle(id, elem);
-            break;
-        case "Digit":
-            btnDecimStyle(id, elem);
-            break;
-        default:
-            console.log("btnAction case not found: ", elem.name)
+function initalizeDate(id, elem){
+    const field_obj = myApp.field_objects[id];
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
+        let dropdown = elem.getElementsByClassName("dropdown")[0];
+
+        if (elem.toggle === 1){
+            // If the Date Dropdown does not exist for this element, create it.
+            if (dropdown === undefined){
+                dropdown = createDateDropDown(id, elem);
+            }
+            dropdown.className = "dropdown";
+
+            let anchors = dropdown.getElementsByTagName("a");
+            let date_type = field_obj.format["dateFormat"];
+            let index = find_attribute_value(anchors, date_type);
+            anchors[index].id = "date_selected";
+        }
+        else{
+            dropdown.className = "hidden";
+        }
     }
 }
 
 // ======================================================================
-// Set Functions
+//  Set Functions
 // ======================================================================
 
 function setVisiblity(id){
@@ -278,29 +314,29 @@ function setSeperator(id){
     }
 }
 
-function setDate(id, elem){
+function setDate(dateType, id){
     const field_obj = myApp.field_objects[id];
-    if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
-        let dropdown = elem.getElementsByClassName("dropdown")[0];
-
-        if (elem.toggle === 1){
-            // If the Date Dropdown does not exist for this element, create it.
-            if (dropdown === undefined){
-                dropdown = createDateDropDown(elem);
-            }
-            dropdown.className = "dropdown"
-            // TODO IM Here not to set the default value of the date and be able to set it
-        }
-        else{
-            dropdown.className = "hidden"
-        }
-    }
+    field_obj.format.dateFormat = dateType;
 }
 
 
+// ======================================================================
+//  Utility Functions
+// ======================================================================
+
+function find_attribute_value(collection, attr_value){
+    // Returns the Index position of an element that is a match within parent element
+    for (let i = 0; i < collection.length; i++){
+        if (collection[i].dataset.value === attr_value){
+            return i
+        }
+    }
+    // Return -1 is nothing found
+    return -1
+}
 
 // ======================================================================
-// Style Functions
+//  Style Functions
 // ======================================================================
 
 function btnLabelStyle(id, elem){
@@ -385,11 +421,11 @@ function btnDecimStyle(id, elem){
 }
 
 // ======================================================================
-// On-Load Handle
+//  On-Load Handle
 // ======================================================================
 
 myApp.initApplication = function(){
-  console.log("App Loaded.\n");
+  //console.log("App Loaded.\n");
   myApp.main();
 };
 
