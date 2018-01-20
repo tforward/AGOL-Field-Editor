@@ -20,7 +20,7 @@ myApp.main = function main(){
   myApp.field_objects = get_unique_field_objs(json_data);
   myApp.field_names = Object.keys(myApp.field_objects);
 
-  WidgetShell();
+  //let widget = WidgetShell();
 
   let fields = add_fields("content");
 
@@ -62,7 +62,7 @@ function get_unique_field_objs(json_data) {
 
 function WidgetShell(){
     // Test this with the other style to see how it works again let widget
-    myApp.Widget = {
+    let Widget = {
       init: function(id, elem){
         this.id = id;
         this.elem = elem;
@@ -73,11 +73,12 @@ function WidgetShell(){
         parent.appendChild(this.elem);
       }
     }
+    return Widget
   }
 
 
 function FieldDelegator(){
-    const field = Object.create(myApp.Widget)
+    const field = Object.create(WidgetShell())
 
     field.setup = function(id){
         this.init(id, document.createElement("div"));
@@ -116,7 +117,7 @@ function add_fields(elem_id){
 }
 
 function BtnDelegator(){
-    const Button = Object.create(myApp.Widget);
+    const Button = Object.create(WidgetShell());
   
     Button.setup = function(id){
         this.init(id, document.createElement("btn"));
@@ -127,6 +128,7 @@ function BtnDelegator(){
         this.elem.toggle = 0;
         this.elem.value = null;
         this.elem.className = null;
+        this.elem.dropdown = null;
     };
     Button.builder = function(parent){
         this.addTo(parent);
@@ -139,7 +141,7 @@ function BtnDelegator(){
 }
 
 function ImageDelegator(){
-    const Image = Object.create(myApp.Widget);
+    const Image = Object.create(WidgetShell());
 
     Image.setup = function(id){
         this.init(id, document.createElement("img"));
@@ -191,7 +193,7 @@ function add_btn(field, title, src, alt, name, fragment){
 }
 
 function DropdownDelegator(){
-    const dropdown = Object.create(myApp.Widget)
+    const dropdown = Object.create(WidgetShell())
 
     dropdown.setup = function(id){
         this.init(id, document.createElement("div"));
@@ -208,10 +210,9 @@ function DropdownDelegator(){
     return dropdown
 }
 
-function addDropdown(id, parent, prop, func){
+function addDropdown(id, parent, prop, func, dropdown){
     const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty(prop)){
-        let dropdown = parent.getElementsByClassName("dropdown")[0];
         if (parent.toggle === 1){
             // If the Digit Dropdown does not exist for this element, create it.
             if (dropdown === undefined){
@@ -219,6 +220,7 @@ function addDropdown(id, parent, prop, func){
                 dropdown.setup(id);
                 dropdown.addContent(func);
                 dropdown.addTo(parent);
+                return dropdown
             }
         }
     }
@@ -228,22 +230,20 @@ function digitDropdown(id, parent){
     const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
         let dropdown = parent.getElementsByClassName("dropdown")[0];
+
         if (parent.toggle === 1){
-            // If the Digit Dropdown does not exist for this element, create it.
             dropdown.className = "dropdown";
+            //console.log(dropdown)
+
+            //TODO HERE Build out the digit label functionality
+            // Try the flex thing to make the label only as big as it needs to be
+
         }
         else{
+            console.log("ddee")
             dropdown.className += " hidden";
         }
     }
-}
-
-function createDropDown(id, elem, func){
-    const dropdown = document.createElement("div");
-    const content_div = func();
-    dropdown.appendChild(content_div);
-    elem.appendChild(dropdown);
-    return dropdown
 }
 
 // ======================================================================
@@ -271,14 +271,19 @@ function btnAction(id, elem){
             btnSeparatorStyle(id, elem);
             break;
         case "Date":
-            addDropdown(id, elem, "dateFormat", dateContent.bind(null, id));
+            if (elem.getElementsByClassName("dropdown")[0] === undefined){
+                elem.dropdown = addDropdown(id, elem, "dateFormat", dateContent.bind(null, id));
+            }
             dateDropdown(id, elem);
             btnDateStyle(id, elem);
             break;
         case "Digit":
             // Plan to get it as simple as possible at first, just an input and current # decimals that's it
             let decimals = field_obj.format["places"];
-            addDropdown(id, elem, "digitSeparator", digitContent.bind(null, id, decimals));
+
+            if (elem.getElementsByClassName("dropdown")[0] === undefined){
+                elem.dropdown = addDropdown(id, elem, "digitSeparator", digitContent.bind(null, id, decimals));
+            }
             digitDropdown(id, elem)
             btnDecimStyle(id, elem);
             break;
@@ -292,14 +297,22 @@ function btnAction(id, elem){
 //  Digit Button
 // ======================================================================
 
-function digitContent(id, digits){
+function digitContent(id, decimals){
     const content_div = document.createElement("div");
     const pTag = document.createElement("p");
     let fragment = document.createDocumentFragment();
+    const input = document.createElement("input");
    
     content_div.className = "dropdown-content";
-    pTag.innerText = "Digits: " + digits;
+    pTag.innerText = "Decimals:";
+    input.type = "text";
+    input.id = "active_text_input";
+    input.autofocus = "autofocus";
+    input.value = decimals;
+
     fragment.appendChild(pTag);
+    fragment.appendChild(input);
+
     content_div.appendChild(fragment);
     return content_div
 }
