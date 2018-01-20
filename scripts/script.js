@@ -190,6 +190,54 @@ function add_btn(field, title, src, alt, name, fragment){
     return fragment
 }
 
+function DropdownDelegator(){
+    const dropdown = Object.create(myApp.Widget)
+
+    dropdown.setup = function(id){
+        this.init(id, document.createElement("div"));
+        this.elem.className = "dropdown";
+        return this
+    }
+    dropdown.addContent = function(func){
+        const content = func()
+        this.elem.appendChild(content)
+    }
+    dropdown.builder = function(parent){
+        this.addTo(parent)
+    }
+    return dropdown
+}
+
+function addDropdown(id, parent, prop, func){
+    const field_obj = myApp.field_objects[id];
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty(prop)){
+        let dropdown = parent.getElementsByClassName("dropdown")[0];
+        if (parent.toggle === 1){
+            // If the Digit Dropdown does not exist for this element, create it.
+            if (dropdown === undefined){
+                let dropdown = Object.create(DropdownDelegator());
+                dropdown.setup(id);
+                dropdown.addContent(func);
+                dropdown.addTo(parent);
+            }
+        }
+    }
+}
+
+function digitDropdown(id, parent){
+    const field_obj = myApp.field_objects[id];
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
+        let dropdown = parent.getElementsByClassName("dropdown")[0];
+        if (parent.toggle === 1){
+            // If the Digit Dropdown does not exist for this element, create it.
+            dropdown.className = "dropdown";
+        }
+        else{
+            dropdown.className += " hidden";
+        }
+    }
+}
+
 function createDropDown(id, elem, func){
     const dropdown = document.createElement("div");
     const content_div = func();
@@ -206,32 +254,37 @@ function btnAction(id, elem){
     //console.log(id + " " + elem.name + " " + elem.toggle)
 
     // TODO need to build-out redo the filters
-
+    {
+    const field_obj = myApp.field_objects[id];
+    
     switch(elem.name){
         case "Label":
             //TO enable this
-            btnLabelStyle(id, elem)
+            btnLabelStyle(elem)
             break;
         case "Visiblity":
             setVisiblity(id);
-            btnVisibilityStyle(id, elem);
+            btnVisibilityStyle(elem);
             break;
         case "Seperator":
             setSeperator(id);
             btnSeparatorStyle(id, elem);
             break;
         case "Date":
-            initalizeDate(id, elem);
+            addDropdown(id, elem, "dateFormat", dateContent.bind(null, id));
+            dateDropdown(id, elem);
             btnDateStyle(id, elem);
             break;
         case "Digit":
-            // TODO: I'm here need to make the implementation for DEcim
             // Plan to get it as simple as possible at first, just an input and current # decimals that's it
-            initalizeDigit(id, elem);
+            let decimals = field_obj.format["places"];
+            addDropdown(id, elem, "digitSeparator", digitContent.bind(null, id, decimals));
+            digitDropdown(id, elem)
             btnDecimStyle(id, elem);
             break;
         default:
             console.log("btnAction case not found: ", elem.name)
+    }
     }
 }
 
@@ -239,44 +292,14 @@ function btnAction(id, elem){
 //  Digit Button
 // ======================================================================
 
-// TODO I think I can refactor this function with the other one into one function
-function initalizeDigit(id, elem){
-    const field_obj = myApp.field_objects[id];
-    if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
-        let digit_dropdown = elem.getElementsByClassName("dropdown")[0];
-
-        if (elem.toggle === 1){
-            let digits = field_obj.format["places"];
-            // If the Digit Dropdown does not exist for this element, create it.
-            if (digit_dropdown === undefined){
-                digit_dropdown = createDropDown(id, elem, addDigitContent.bind(null, id, digits));
-            }
-            digit_dropdown.className = "dropdown";
-
-            let anchors = digit_dropdown.getElementsByTagName("a");
-            let seperator = field_obj.format["digitSeparator"];
-            
-            let index = find_attribute_value(anchors, digits);
-            //anchors[index].id = "digit_selected";
-        }
-        else{
-            digit_dropdown.className = "hidden";
-        }
-    }
-}
-
-function addDigitContent(id, digits){
+function digitContent(id, digits){
     const content_div = document.createElement("div");
     const pTag = document.createElement("p");
     let fragment = document.createDocumentFragment();
    
     content_div.className = "dropdown-content";
-
     pTag.innerText = "Digits: " + digits;
-
-
     fragment.appendChild(pTag);
-
     content_div.appendChild(fragment);
     return content_div
 }
@@ -305,7 +328,7 @@ function dateArray(){
 }
 
 
-function add_date_content(id){
+function dateContent(id){
     const content_div = document.createElement("div");
     let fragment = document.createDocumentFragment();
     const date_arr = dateArray();
@@ -314,7 +337,6 @@ function add_date_content(id){
         let a = document.createElement("a");
         a.textContent = data[1]; // text
         a.dataset.value = data[0]; // value;
-        a.href = "#"; // placeholder
         a.title = data[0] // tooltip
         a.addEventListener("click", setDate.bind(null, data[0], id));
         fragment.appendChild(a);
@@ -323,16 +345,12 @@ function add_date_content(id){
     return content_div
 }
 
-function initalizeDate(id, elem){
+function dateDropdown(id, elem){
     const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
         let dropdown = elem.getElementsByClassName("dropdown")[0];
 
         if (elem.toggle === 1){
-            // If the Date Dropdown does not exist for this element, create it.
-            if (dropdown === undefined){
-                dropdown = createDropDown(id, elem, add_date_content.bind(null, id));
-            }
             dropdown.className = "dropdown";
 
             let anchors = dropdown.getElementsByTagName("a");
@@ -387,7 +405,7 @@ function find_attribute_value(collection, attr_value){
 //  Style Functions
 // ======================================================================
 
-function btnLabelStyle(id, elem){
+function btnLabelStyle(elem){
     const imgNode = elem.firstElementChild;
 
     if (elem.toggle == 0){
@@ -401,7 +419,7 @@ function btnLabelStyle(id, elem){
     }
 }
 
-function btnVisibilityStyle(id, elem){
+function btnVisibilityStyle(elem){
     const imgNode = elem.firstElementChild;
     imgNode.src = elem.toggle ^1 ? "images/light_on.svg" : "images/light_off.svg";
     imgNode.alt = elem.toggle ^1 ? "Visible" : "Hidden" ;
