@@ -24,9 +24,9 @@ myApp.main = function main(){
 
   let fields = add_fields("content");
 
-  add_btns(fields);
+  fields = add_btns(fields);
 
-  //console.log(fields)
+  console.log(fields)
 
 }
 
@@ -82,7 +82,7 @@ function FieldDelegator(){
 
     field.setup = function(id){
         this.init(id, document.createElement("div"));
-        this.elem.className = "aligner-div";
+        this.elem.className = "aligner-field";
         return this
     };
     field.define = function(){
@@ -133,9 +133,9 @@ function BtnDelegator(){
     Button.builder = function(parent){
         this.addTo(parent);
     };
-    Button.onClick = function() {
+    Button.onClick = function(event) {
         this.elem.toggle ^= 1;
-        btnAction(this.id, this.elem);
+        btnAction(this.id, this.elem, event);
     };
     return Button
 }
@@ -226,6 +226,21 @@ function addDropdown(id, parent, prop, func, dropdown){
     }
 }
 
+function addDropdown2(id, parent, prop, dropdown){
+    const field_obj = myApp.field_objects[id];
+    if (field_obj.format !== null && field_obj.format.hasOwnProperty(prop)){
+        if (parent.toggle === 1){
+            // If the Digit Dropdown does not exist for this element, create it.
+            if (dropdown === undefined){
+                let dropdown = Object.create(DropdownDelegator());
+                dropdown.setup(id);
+                dropdown.addTo(parent);
+                return dropdown
+            }
+        }
+    }
+}
+
 function digitDropdown(id, parent){
     const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
@@ -233,14 +248,17 @@ function digitDropdown(id, parent){
 
         if (parent.toggle === 1){
             dropdown.className = "dropdown";
-            //console.log(dropdown)
+            let decimals = 1
+            
+            let content = digitContent(id, decimals)
+            dropdown.appendChild(content);
+            console.log(parent)
 
             //TODO HERE Build out the digit label functionality
             // Try the flex thing to make the label only as big as it needs to be
 
         }
         else{
-            console.log("ddee")
             dropdown.className += " hidden";
         }
     }
@@ -250,7 +268,7 @@ function digitDropdown(id, parent){
 // Logic Functions
 // ======================================================================
 
-function btnAction(id, elem){
+function btnAction(id, elem, parentEvent){
     //console.log(id + " " + elem.name + " " + elem.toggle)
 
     // TODO need to build-out redo the filters
@@ -282,7 +300,7 @@ function btnAction(id, elem){
             let decimals = field_obj.format["places"];
 
             if (elem.getElementsByClassName("dropdown")[0] === undefined){
-                elem.dropdown = addDropdown(id, elem, "digitSeparator", digitContent.bind(null, id, decimals));
+                elem.dropdown = addDropdown2(id, elem, "digitSeparator");
             }
             digitDropdown(id, elem)
             btnDecimStyle(id, elem);
@@ -303,12 +321,13 @@ function digitContent(id, decimals){
     let fragment = document.createDocumentFragment();
     const input = document.createElement("input");
    
-    content_div.className = "dropdown-content";
+    content_div.className = "dropdown-contentDigit";
     pTag.innerText = "Decimals:";
-    input.type = "text";
-    input.id = "active_text_input";
+    input.type = "number";
+    input.className = "smInput";
     input.autofocus = "autofocus";
     input.value = decimals;
+    input.addEventListener("change", setDigit.bind(null, id));
 
     fragment.appendChild(pTag);
     fragment.appendChild(input);
@@ -396,6 +415,11 @@ function setSeperator(id){
 function setDate(dateType, id){
     const field_obj = myApp.field_objects[id];
     field_obj.format.dateFormat = dateType;
+}
+
+function setDigit(id, e){
+    const field_obj = myApp.field_objects[id];
+    field_obj.format.places = e.target.valueAsNumber;
 }
 
 
