@@ -26,7 +26,7 @@ myApp.main = function main(){
 
   fields = add_btns(fields);
 
-  console.log(fields)
+  //console.log(fields)
 
 }
 
@@ -91,6 +91,8 @@ function FieldDelegator(){
     field.addBtnPanel = function(){
         this.BtnPanel = document.createElement("div");
         this.BtnPanel.className = "btn_panel";
+        this.BtnPanel.toggle = 0;
+        this.BtnPanel.btns = []
         this.elem.appendChild(this.BtnPanel);
     };
     field.builder = function(parent){
@@ -128,14 +130,15 @@ function BtnDelegator(){
         this.elem.toggle = 0;
         this.elem.value = null;
         this.elem.className = null;
-        this.elem.dropdown = null;
+        this.elem.parent = null;
+        this.elem.panel = null;
     };
     Button.builder = function(parent){
         this.addTo(parent);
     };
-    Button.onClick = function(event) {
+    Button.onClick = function() {
         this.elem.toggle ^= 1;
-        btnAction(this.id, this.elem, event);
+        btnAction(this.id, this.elem);
     };
     return Button
 }
@@ -169,6 +172,7 @@ function add_btns(fields){
         fragment = add_btn(field, "Date", "images/date.png", "Date", "Date", fragment);
         fragment = add_btn(field, "Digit", "images/decimal.png", "Digit", "Digit", fragment);
         field.BtnPanel.appendChild(fragment);
+        field.BtnPanel.btns.push(fragment)
     });
     return fields
 }
@@ -181,6 +185,8 @@ function add_btn(field, title, src, alt, name, fragment){
     btn.define()
     // This way below will show-up in the DOM directly
     //btn.elem.setAttribute("name", name)
+    btn.elem.parent = field;
+    btn.elem.panel = field.BtnPanel;
     btn.elem.name = name;
     img.setup(field.id);
     img.elem.title = title;
@@ -226,37 +232,24 @@ function addDropdown(id, parent, prop, func, dropdown){
     }
 }
 
-function addDropdown2(id, parent, prop, dropdown){
+function addDropdown2(id, parent, prop, func){
     const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty(prop)){
-        if (parent.toggle === 1){
-            // If the Digit Dropdown does not exist for this element, create it.
-            if (dropdown === undefined){
-                let dropdown = Object.create(DropdownDelegator());
-                dropdown.setup(id);
-                dropdown.addTo(parent);
-                return dropdown
-            }
-        }
+        let dropdown = Object.create(DropdownDelegator());
+        dropdown.setup(id);
+        dropdown.addContent(func);
+        dropdown.addTo(parent);
+        return dropdown
     }
 }
 
-function digitDropdown(id, parent){
+function digitDropdown(id, btn){
     const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
-        let dropdown = parent.getElementsByClassName("dropdown")[0];
+        let dropdown = btn.parent.BtnPanel.getElementsByClassName("dropdown")[0];
 
-        if (parent.toggle === 1){
+        if (btn.toggle === 1){
             dropdown.className = "dropdown";
-            let decimals = 1
-            
-            let content = digitContent(id, decimals)
-            dropdown.appendChild(content);
-            console.log(parent)
-
-            //TODO HERE Build out the digit label functionality
-            // Try the flex thing to make the label only as big as it needs to be
-
         }
         else{
             dropdown.className += " hidden";
@@ -268,45 +261,51 @@ function digitDropdown(id, parent){
 // Logic Functions
 // ======================================================================
 
-function btnAction(id, elem, parentEvent){
+function btnAction(id, btn){
     //console.log(id + " " + elem.name + " " + elem.toggle)
 
     // TODO need to build-out redo the filters
     {
     const field_obj = myApp.field_objects[id];
+
+    btn.panel.toggle ^= 1;
+    console.log(btn.panel.toggle)
     
-    switch(elem.name){
+    switch(btn.name){
         case "Label":
             //TO enable this
-            btnLabelStyle(elem)
+            btnLabelStyle(btn)
             break;
         case "Visiblity":
             setVisiblity(id);
-            btnVisibilityStyle(elem);
+            btnVisibilityStyle(btn);
             break;
         case "Seperator":
             setSeperator(id);
-            btnSeparatorStyle(id, elem);
+            btnSeparatorStyle(id, btn);
             break;
         case "Date":
-            if (elem.getElementsByClassName("dropdown")[0] === undefined){
-                elem.dropdown = addDropdown(id, elem, "dateFormat", dateContent.bind(null, id));
+            if (btn.getElementsByClassName("dropdown")[0] === undefined){
+                btn.dropdown = addDropdown(id, elem, "dateFormat", dateContent.bind(null, id));
             }
-            dateDropdown(id, elem);
-            btnDateStyle(id, elem);
+            dateDropdown(id, btn);
+            btnDateStyle(id, btn);
             break;
         case "Digit":
             // Plan to get it as simple as possible at first, just an input and current # decimals that's it
             let decimals = field_obj.format["places"];
+            let panel = btn.parent.BtnPanel
 
-            if (elem.getElementsByClassName("dropdown")[0] === undefined){
-                elem.dropdown = addDropdown2(id, elem, "digitSeparator");
+            //TODO Need to make the digit content be set to hidden as well along with the panel
+
+            if (panel.getElementsByClassName("dropdown")[0] === undefined){
+                let dropdown = addDropdown2(id, panel, "digitSeparator", digitContent.bind(null, id, decimals));
             }
-            digitDropdown(id, elem)
-            btnDecimStyle(id, elem);
+            digitDropdown(id, btn)
+            //btnDecimStyle(id, elem);
             break;
         default:
-            console.log("btnAction case not found: ", elem.name)
+            console.log("btnAction case not found: ", btn.name)
     }
     }
 }
