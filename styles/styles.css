@@ -139,6 +139,22 @@
   margin: 0.5em; 
 }
 
+.button{
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 6px 4px;
+  height: 1.5em;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.center{
+
+  display: flex;
+  justify-content: center; /* center items horizontally, in this case */
+  align-items: center;
+}
 
 
 /* Keep these rules at bottom of CSS */

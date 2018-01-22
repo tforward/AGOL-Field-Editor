@@ -292,7 +292,6 @@ function btnAction(id, btn){
             btnDateStyle(id, btn);
             break;
         case "Digit":
-            // Plan to get it as simple as possible at first, just an input and current # decimals that's it
             let decimals = field_obj.format["places"];
             let panel = btn.parent.BtnPanel
 
@@ -319,9 +318,14 @@ function digitContent(id, decimals){
     const pTag = document.createElement("p");
     let fragment = document.createDocumentFragment();
     const input = document.createElement("input");
+    const btn = document.createElement("btn")
    
     content_div.className = "dropdown-contentDigit";
-    pTag.innerText = "Decimals:";
+    pTag.innerText = "Decimals: ";
+
+    btn.innerText = "Set";
+    btn.className = "button center"
+
     input.type = "number";
     input.className = "smInput";
     input.autofocus = "autofocus";
@@ -330,6 +334,7 @@ function digitContent(id, decimals){
 
     fragment.appendChild(pTag);
     fragment.appendChild(input);
+    fragment.appendChild(btn);
 
     content_div.appendChild(fragment);
     return content_div
