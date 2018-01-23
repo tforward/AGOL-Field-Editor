@@ -92,7 +92,6 @@ function FieldDelegator(){
         this.BtnPanel = document.createElement("div");
         this.BtnPanel.className = "btn_panel";
         this.BtnPanel.toggle = 0;
-        this.BtnPanel.btns = []
         this.elem.appendChild(this.BtnPanel);
     };
     field.builder = function(parent){
@@ -132,6 +131,7 @@ function BtnDelegator(){
         this.elem.className = null;
         this.elem.parent = null;
         this.elem.panel = null;
+        this.elem.dropdown = null;
     };
     Button.builder = function(parent){
         this.addTo(parent);
@@ -172,7 +172,6 @@ function add_btns(fields){
         fragment = add_btn(field, "Date", "images/date.png", "Date", "Date", fragment);
         fragment = add_btn(field, "Digit", "images/decimal.png", "Digit", "Digit", fragment);
         field.BtnPanel.appendChild(fragment);
-        field.BtnPanel.btns.push(fragment)
     });
     return fields
 }
@@ -208,6 +207,7 @@ function DropdownDelegator(){
     }
     dropdown.addContent = function(func){
         const content = func()
+        this.elem.parent = null
         this.elem.appendChild(content)
     }
     dropdown.builder = function(parent){
@@ -238,6 +238,7 @@ function addDropdown2(id, parent, prop, func){
         let dropdown = Object.create(DropdownDelegator());
         dropdown.setup(id);
         dropdown.addContent(func);
+        dropdown.elem.parent = parent
         dropdown.addTo(parent);
         return dropdown
     }
@@ -286,20 +287,21 @@ function btnAction(id, btn){
             break;
         case "Date":
             if (btn.getElementsByClassName("dropdown")[0] === undefined){
-                btn.dropdown = addDropdown(id, elem, "dateFormat", dateContent.bind(null, id));
+                btn.dropdown = addDropdown(id, btn.panel, "dateFormat", dateContent.bind(null, id));
             }
             dateDropdown(id, btn);
             btnDateStyle(id, btn);
             break;
         case "Digit":
-            let decimals = field_obj.format["places"];
-            let panel = btn.parent.BtnPanel
-
+            const decimals = field_obj.format["places"];
+            const panel = btn.parent.BtnPanel
+            let dropdown = panel.getElementsByClassName("dropdown")[0]
             //TODO Need to make the digit content be set to hidden as well along with the panel
-
-            if (panel.getElementsByClassName("dropdown")[0] === undefined){
-                let dropdown = addDropdown2(id, panel, "digitSeparator", digitContent.bind(null, id, decimals));
+            
+            if (dropdown === undefined){
+                btn.dropdown = addDropdown2(id, panel, "digitSeparator", digitContent.bind(null, id, decimals, btn));
             }
+
             digitDropdown(id, btn)
             //btnDecimStyle(id, elem);
             break;
@@ -313,7 +315,7 @@ function btnAction(id, btn){
 //  Digit Button
 // ======================================================================
 
-function digitContent(id, decimals){
+function digitContent(id, decimals, parentbtn){
     const content_div = document.createElement("div");
     const pTag = document.createElement("p");
     let fragment = document.createDocumentFragment();
@@ -323,14 +325,14 @@ function digitContent(id, decimals){
     content_div.className = "dropdown-contentDigit";
     pTag.innerText = "Decimals: ";
 
-    btn.innerText = "Set";
-    btn.className = "button center"
-
     input.type = "number";
     input.className = "smInput";
     input.autofocus = "autofocus";
     input.value = decimals;
-    input.addEventListener("change", setDigit.bind(null, id));
+
+    btn.innerText = "Set";
+    btn.className = "button center"
+    btn.addEventListener("click", digitSetBtn.bind(null, id, input, parentbtn));
 
     fragment.appendChild(pTag);
     fragment.appendChild(input);
@@ -338,6 +340,12 @@ function digitContent(id, decimals){
 
     content_div.appendChild(fragment);
     return content_div
+}
+
+function digitSetBtn(id, input, parentbtn){
+    setDigit(id, input.value);
+    parentbtn.dropdown.elem.className += " hidden";
+    parentbtn.toggle = 0;
 }
 
 // ======================================================================
@@ -421,9 +429,9 @@ function setDate(dateType, id){
     field_obj.format.dateFormat = dateType;
 }
 
-function setDigit(id, e){
+function setDigit(id, value){
     const field_obj = myApp.field_objects[id];
-    field_obj.format.places = e.target.valueAsNumber;
+    field_obj.format.places = value;
 }
 
 
