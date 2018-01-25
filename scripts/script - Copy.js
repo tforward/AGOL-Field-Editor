@@ -3,44 +3,32 @@
 // This JS file uses the OOLO Design Pattern, see link below for more info:
 // https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
 
-let myApp = FieldApp();
+// Create a empty object with no __proto__
+const myApp = Object.create(null);
 
-function FieldApp(){
-    let App = {
-        init: function(fieldObj){
-        this.fieldObj = fieldObj;
-        this.fieldnames = Object.keys(fieldObj);
-        return this
-      },
-      elems: function(fields){
-        this.fields = fields;
-        return this
-      },     
-    };
-    return App
-}
+
 
 // ======================================================================
 // Main
 // ======================================================================
 
-function Main(){
-  const json_data = parse_json("text_data");
-  const fieldObjects = get_unique_field_objs(json_data);
-  myApp.init(fieldObjects);
+myApp.main = function main(){
+  console.log("Main loaded")
 
-  myApp.fields = add_fields("content");
+  let json_data = parse_json("text_data");
+  
+  myApp.field_objects = get_unique_field_objs(json_data);
+  myApp.field_names = Object.keys(myApp.field_objects);
 
-  myApp.fields = add_btns(myApp.fields);
+  //let widget = WidgetShell();
 
-  console.log("dd", myApp.fieldObj["TYPE"])
+  let fields = add_fields("content");
+
+  fields = add_btns(fields);
 
   //console.log(fields)
 
-
-
 }
-
 
 // ======================================================================
 // Process Data
@@ -69,55 +57,60 @@ function get_unique_field_objs(json_data) {
 }
 
 // ======================================================================
-// Delegators
+// Add elements
 // ======================================================================
 
-function Widget(){
-    let WidgetShell = {
-      init: function(fieldname, elem){
-        this.fieldname = fieldname;
+function WidgetShell(){
+    // Test this with the other style to see how it works again let widget
+    let Widget = {
+      init: function(id, elem){
+        this.id = id;
         this.elem = elem;
+        this.name = null;
         return this
       },
       addTo: function(parent){
         parent.appendChild(this.elem);
       }
     }
-    return WidgetShell
+    return Widget
   }
 
-function FieldDelegator(){
-    const field = Object.create(Widget());
 
-    field.setup = function(fieldname){
-        this.init(fieldname, document.createElement("div"));
+function FieldDelegator(){
+    const field = Object.create(WidgetShell())
+
+    field.setup = function(id){
+        this.init(id, document.createElement("div"));
         this.elem.className = "aligner-field";
         return this
     };
     field.define = function(){
         this.elem.innerHTML = null;
     };
-    field.addPanel = function(){
-        this.panel = document.createElement("div");
-        this.panel.className = "btn_panel";
-        this.panel.toggle = 0;
-        this.elem.appendChild(this.panel);
+    field.addBtnPanel = function(){
+        this.BtnPanel = document.createElement("div");
+        this.BtnPanel.className = "btn_panel";
+        this.BtnPanel.toggle = 0;
+        this.elem.appendChild(this.BtnPanel);
+    };
+    field.builder = function(parent){
+        this.addTo(parent);
     };
     return field
 }
 
 
 function add_fields(elem_id){
-    // TODO CAN USE FRAGEMENT HERE
     const parent = document.getElementById(elem_id);
     const fields = [];
 
-    myApp.fieldnames.forEach(fieldname => {
+    myApp.field_names.forEach(fieldname => {
         let field = Object.create(FieldDelegator());
         field.setup(fieldname);
         field.elem.innerHTML = "<label class='lbl_class'>" + fieldname + "</label>";
         field.addTo(parent);
-        field.addPanel();
+        field.addBtnPanel();
         fields.push(field); 
         }
     );
@@ -125,7 +118,7 @@ function add_fields(elem_id){
 }
 
 function BtnDelegator(){
-    const Button = Object.create(Widget());
+    const Button = Object.create(WidgetShell());
   
     Button.setup = function(id){
         this.init(id, document.createElement("btn"));
@@ -140,6 +133,9 @@ function BtnDelegator(){
         this.elem.panel = null;
         this.elem.dropdown = null;
     };
+    Button.builder = function(parent){
+        this.addTo(parent);
+    };
     Button.onClick = function() {
         this.elem.toggle ^= 1;
         btnAction(this.id, this.elem);
@@ -148,7 +144,7 @@ function BtnDelegator(){
 }
 
 function ImageDelegator(){
-    const Image = Object.create(Widget());
+    const Image = Object.create(WidgetShell());
 
     Image.setup = function(id){
         this.init(id, document.createElement("img"));
@@ -161,6 +157,9 @@ function ImageDelegator(){
         this.elem.alt = null;
         this.elem.title = null;
     };
+    Image.builder = function(parent){
+        this.addTo(parent)
+    };
     return Image
 }
 
@@ -172,7 +171,7 @@ function add_btns(fields){
         fragment = add_btn(field, "Separator On", "images/comma_on.png", "Separator On", "Seperator", fragment);
         fragment = add_btn(field, "Date", "images/date.png", "Date", "Date", fragment);
         fragment = add_btn(field, "Digit", "images/decimal.png", "Digit", "Digit", fragment);
-        field.panel.appendChild(fragment);
+        field.BtnPanel.appendChild(fragment);
     });
     return fields
 }
@@ -186,7 +185,7 @@ function add_btn(field, title, src, alt, name, fragment){
     // This way below will show-up in the DOM directly
     //btn.elem.setAttribute("name", name)
     btn.elem.parent = field;
-    btn.elem.panel = field.panel;
+    btn.elem.panel = field.BtnPanel;
     btn.elem.name = name;
     img.setup(field.id);
     img.elem.title = title;
@@ -199,7 +198,7 @@ function add_btn(field, title, src, alt, name, fragment){
 }
 
 function DropdownDelegator(){
-    const dropdown = Object.create(Widget())
+    const dropdown = Object.create(WidgetShell())
 
     dropdown.setup = function(id){
         this.init(id, document.createElement("div"));
@@ -211,11 +210,14 @@ function DropdownDelegator(){
         this.elem.parent = null
         this.elem.appendChild(content)
     }
+    dropdown.builder = function(parent){
+        this.addTo(parent)
+    }
     return dropdown
 }
 
 function addDropdown(id, parent, prop, func, dropdown){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty(prop)){
         if (parent.toggle === 1){
             // If the Digit Dropdown does not exist for this element, create it.
@@ -231,7 +233,7 @@ function addDropdown(id, parent, prop, func, dropdown){
 }
 
 function addDropdown2(id, parent, prop, func){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty(prop)){
         let dropdown = Object.create(DropdownDelegator());
         dropdown.setup(id);
@@ -243,7 +245,7 @@ function addDropdown2(id, parent, prop, func){
 }
 
 function digitDropdown(id, btn){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
         let dropdown = btn.parent.BtnPanel.getElementsByClassName("dropdown")[0];
 
@@ -265,7 +267,7 @@ function btnAction(id, btn){
 
     // TODO need to build-out redo the filters
     {
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
 
     btn.panel.toggle ^= 1;
     console.log(btn.panel.toggle)
@@ -388,7 +390,7 @@ function dateContent(id){
 }
 
 function dateDropdown(id, elem){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
         let dropdown = elem.getElementsByClassName("dropdown")[0];
 
@@ -411,25 +413,24 @@ function dateDropdown(id, elem){
 // ======================================================================
 
 function setVisiblity(id){
-    const field_obj = myApp.fieldObj[id];
-    console.log(id);
+    const field_obj = myApp.field_objects[id];
     field_obj.visible = !field_obj.visible;
 }
 
 function setSeperator(id){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
         field_obj.format.digitSeparator = !field_obj.format.digitSeparator;
     }
 }
 
 function setDate(dateType, id){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     field_obj.format.dateFormat = dateType;
 }
 
 function setDigit(id, value){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     field_obj.format.places = value;
 }
 
@@ -476,7 +477,7 @@ function btnVisibilityStyle(elem){
 
 function btnSeparatorStyle(id, elem){
     const imgNode = elem.firstElementChild;
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
 
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
         imgNode.src = !field_obj.format["digitSeparator"] === false ? "images/comma_off.png" : "images/comma_on.png";
@@ -491,7 +492,7 @@ function btnSeparatorStyle(id, elem){
 
 function btnDateStyle(id, elem){
     const imgNode = elem.firstElementChild;
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     const date = ["shortDate", "shortDateLE", "longMonthDayYear", "dayShortMonthYear",
     "longDate", "longMonthYear", "shortMonthYear", "year"];
 
@@ -519,7 +520,7 @@ function btnDateStyle(id, elem){
 }
 
 function btnDecimStyle(id, elem){
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.field_objects[id];
     const imgNode = elem.firstElementChild;
 
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("places")){
@@ -538,13 +539,14 @@ function btnDecimStyle(id, elem){
 //  On-Load Handle
 // ======================================================================
 
-function initApplication(readyState){
-  Main();
+myApp.initApplication = function(){
+  //console.log("App Loaded.\n");
+  myApp.main();
 };
 
   // Handler when the DOM is fully loaded
 document.onreadystatechange = function () {
-    document.readyState === "complete" ? initApplication(document.readyState) : console.log("Loading...");
+    document.readyState === "complete" ? myApp.initApplication(document.readyState) : console.log("Loading...");
 }
 
 // ======================================================================
