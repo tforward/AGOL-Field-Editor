@@ -33,11 +33,7 @@ function Main(){
 
   myApp.fields = add_btns(myApp.fields);
 
-  console.log("dd", myApp.fieldObj["TYPE"])
-
-  //console.log(fields)
-
-
+  console.log(myApp.fields)
 
 }
 
@@ -96,14 +92,28 @@ function FieldDelegator(){
     };
     field.define = function(){
         this.elem.innerHTML = null;
+        return this
     };
-    field.addPanel = function(){
+    field.Panel = function(){
         this.panel = document.createElement("div");
         this.panel.className = "btn_panel";
         this.panel.toggle = 0;
         this.elem.appendChild(this.panel);
+        return this
     };
+    field.btnArray = function(btn){
+        this.btns = addBtnArray(this.btns, btn)
+        return this
+    }
     return field
+}
+
+function addBtnArray(btns, btn){
+    if (btns == null) {
+        btns = [];
+    }
+    btns.push(btn)
+    return btns
 }
 
 
@@ -117,7 +127,7 @@ function add_fields(elem_id){
         field.setup(fieldname);
         field.elem.innerHTML = "<label class='lbl_class'>" + fieldname + "</label>";
         field.addTo(parent);
-        field.addPanel();
+        field.Panel();
         fields.push(field); 
         }
     );
@@ -127,8 +137,8 @@ function add_fields(elem_id){
 function BtnDelegator(){
     const Button = Object.create(Widget());
   
-    Button.setup = function(id){
-        this.init(id, document.createElement("btn"));
+    Button.setup = function(fieldname){
+        this.init(fieldname, document.createElement("btn"));
         this.elem.addEventListener("click", this.onClick.bind(this));
         return this
     };
@@ -142,7 +152,7 @@ function BtnDelegator(){
     };
     Button.onClick = function() {
         this.elem.toggle ^= 1;
-        btnAction(this.id, this.elem);
+        btnAction(this.fieldname, this.elem);
     };
     return Button
 }
@@ -150,8 +160,8 @@ function BtnDelegator(){
 function ImageDelegator(){
     const Image = Object.create(Widget());
 
-    Image.setup = function(id){
-        this.init(id, document.createElement("img"));
+    Image.setup = function(fieldname){
+        this.init(fieldname, document.createElement("img"));
         this.elem.width = 20;
         this.elem.height = 20; 
         return this
@@ -177,23 +187,24 @@ function add_btns(fields){
     return fields
 }
 
-function add_btn(field, title, src, alt, name, fragment){
+function add_btn(field, title, src, alt, className, fragment){
     const btn = Object.create(BtnDelegator());
     const img = Object.create(ImageDelegator());
 
-    btn.setup(field.id);
+    btn.setup(field.fieldname);
     btn.define()
     // This way below will show-up in the DOM directly
     //btn.elem.setAttribute("name", name)
     btn.elem.parent = field;
     btn.elem.panel = field.panel;
-    btn.elem.name = name;
-    img.setup(field.id);
+    btn.elem.className = className;
+    img.setup(field.fieldname);
     img.elem.title = title;
     img.elem.src = src;
     img.elem.alt = alt;
     img.addTo(btn.elem);
 
+    field.btnArray(btn)
     fragment.appendChild(btn.elem)
     return fragment
 }
@@ -201,8 +212,8 @@ function add_btn(field, title, src, alt, name, fragment){
 function DropdownDelegator(){
     const dropdown = Object.create(Widget())
 
-    dropdown.setup = function(id){
-        this.init(id, document.createElement("div"));
+    dropdown.setup = function(fieldname){
+        this.init(fieldname, document.createElement("div"));
         this.elem.className = "dropdown";
         return this
     }
@@ -230,11 +241,11 @@ function addDropdown(id, parent, prop, func, dropdown){
     }
 }
 
-function addDropdown2(id, parent, prop, func){
-    const field_obj = myApp.fieldObj[id];
+function addDropdown2(fieldname, parent, prop, func){
+    const field_obj = myApp.fieldObj[fieldname];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty(prop)){
         let dropdown = Object.create(DropdownDelegator());
-        dropdown.setup(id);
+        dropdown.setup(fieldname);
         dropdown.addContent(func);
         dropdown.elem.parent = parent
         dropdown.addTo(parent);
@@ -242,8 +253,8 @@ function addDropdown2(id, parent, prop, func){
     }
 }
 
-function digitDropdown(id, btn){
-    const field_obj = myApp.fieldObj[id];
+function digitDropdown(fieldname, btn){
+    const field_obj = myApp.fieldObj[fieldname];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
         let dropdown = btn.parent.BtnPanel.getElementsByClassName("dropdown")[0];
 
@@ -260,12 +271,14 @@ function digitDropdown(id, btn){
 // Logic Functions
 // ======================================================================
 
-function btnAction(id, btn){
+function btnAction(fieldname, btn){
     //console.log(id + " " + elem.name + " " + elem.toggle)
 
     // TODO need to build-out redo the filters
     {
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.fieldObj[fieldname];
+
+    console.log(myApp.fieldObj[fieldname])
 
     btn.panel.toggle ^= 1;
     console.log(btn.panel.toggle)
@@ -276,19 +289,19 @@ function btnAction(id, btn){
             btnLabelStyle(btn)
             break;
         case "Visiblity":
-            setVisiblity(id);
+            setVisiblity(fieldname);
             btnVisibilityStyle(btn);
             break;
         case "Seperator":
-            setSeperator(id);
-            btnSeparatorStyle(id, btn);
+            setSeperator(fieldname);
+            btnSeparatorStyle(fieldname, btn);
             break;
         case "Date":
             if (btn.getElementsByClassName("dropdown")[0] === undefined){
-                btn.dropdown = addDropdown(id, btn.panel, "dateFormat", dateContent.bind(null, id));
+                btn.dropdown = addDropdown(fieldname, btn.panel, "dateFormat", dateContent.bind(null, fieldname));
             }
-            dateDropdown(id, btn);
-            btnDateStyle(id, btn);
+            dateDropdown(fieldname, btn);
+            btnDateStyle(fieldname, btn);
             break;
         case "Digit":
             const decimals = field_obj.format["places"];
@@ -297,10 +310,10 @@ function btnAction(id, btn){
             //TODO Need to make the digit content be set to hidden as well along with the panel
             
             if (dropdown === undefined){
-                btn.dropdown = addDropdown2(id, panel, "digitSeparator", digitContent.bind(null, id, decimals, btn));
+                btn.dropdown = addDropdown2(fieldname, panel, "digitSeparator", digitContent.bind(null, fieldname, decimals, btn));
             }
 
-            digitDropdown(id, btn)
+            digitDropdown(fieldname, btn)
             //btnDecimStyle(id, elem);
             break;
         default:
@@ -313,7 +326,7 @@ function btnAction(id, btn){
 //  Digit Button
 // ======================================================================
 
-function digitContent(id, decimals, parentbtn){
+function digitContent(fieldname, decimals, parentbtn){
     const content_div = document.createElement("div");
     const pTag = document.createElement("p");
     let fragment = document.createDocumentFragment();
@@ -330,7 +343,7 @@ function digitContent(id, decimals, parentbtn){
 
     btn.innerText = "Set";
     btn.className = "button center"
-    btn.addEventListener("click", digitSetBtn.bind(null, id, input, parentbtn));
+    btn.addEventListener("click", digitSetBtn.bind(null, fieldname, input, parentbtn));
 
     fragment.appendChild(pTag);
     fragment.appendChild(input);
@@ -340,8 +353,8 @@ function digitContent(id, decimals, parentbtn){
     return content_div
 }
 
-function digitSetBtn(id, input, parentbtn){
-    setDigit(id, input.value);
+function digitSetBtn(fieldname, input, parentbtn){
+    setDigit(fieldname, input.value);
     parentbtn.dropdown.elem.className += " hidden";
     parentbtn.toggle = 0;
 }
@@ -370,7 +383,7 @@ function dateArray(){
 }
 
 
-function dateContent(id){
+function dateContent(fieldname){
     const content_div = document.createElement("div");
     let fragment = document.createDocumentFragment();
     const date_arr = dateArray();
@@ -380,15 +393,15 @@ function dateContent(id){
         a.textContent = data[1]; // text
         a.dataset.value = data[0]; // value;
         a.title = data[0] // tooltip
-        a.addEventListener("click", setDate.bind(null, data[0], id));
+        a.addEventListener("click", setDate.bind(null, data[0], fieldname));
         fragment.appendChild(a);
     });
     content_div.appendChild(fragment);
     return content_div
 }
 
-function dateDropdown(id, elem){
-    const field_obj = myApp.fieldObj[id];
+function dateDropdown(fieldname, elem){
+    const field_obj = myApp.fieldObj[fieldname];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("dateFormat")){
         let dropdown = elem.getElementsByClassName("dropdown")[0];
 
@@ -410,26 +423,26 @@ function dateDropdown(id, elem){
 //  Set Functions
 // ======================================================================
 
-function setVisiblity(id){
-    const field_obj = myApp.fieldObj[id];
-    console.log(id);
+function setVisiblity(fieldname){
+    const field_obj = myApp.fieldObj[fieldname];
+    console.log(fieldname);
     field_obj.visible = !field_obj.visible;
 }
 
-function setSeperator(id){
-    const field_obj = myApp.fieldObj[id];
+function setSeperator(fieldname){
+    const field_obj = myApp.fieldObj[fieldname];
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
         field_obj.format.digitSeparator = !field_obj.format.digitSeparator;
     }
 }
 
-function setDate(dateType, id){
-    const field_obj = myApp.fieldObj[id];
+function setDate(dateType, fieldname){
+    const field_obj = myApp.fieldObj[fieldname];
     field_obj.format.dateFormat = dateType;
 }
 
-function setDigit(id, value){
-    const field_obj = myApp.fieldObj[id];
+function setDigit(fieldname, value){
+    const field_obj = myApp.fieldObj[fieldname];
     field_obj.format.places = value;
 }
 
@@ -474,9 +487,9 @@ function btnVisibilityStyle(elem){
     imgNode.title = elem.toggle ^1 ? "Visible" : "Hidden" ;
 }
 
-function btnSeparatorStyle(id, elem){
+function btnSeparatorStyle(fieldname, elem){
     const imgNode = elem.firstElementChild;
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.fieldObj[fieldname];
 
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("digitSeparator")){
         imgNode.src = !field_obj.format["digitSeparator"] === false ? "images/comma_off.png" : "images/comma_on.png";
@@ -489,9 +502,9 @@ function btnSeparatorStyle(id, elem){
     }
 }
 
-function btnDateStyle(id, elem){
+function btnDateStyle(fieldnameid, elem){
     const imgNode = elem.firstElementChild;
-    const field_obj = myApp.fieldObj[id];
+    const field_obj = myApp.fieldObj[fieldname];
     const date = ["shortDate", "shortDateLE", "longMonthDayYear", "dayShortMonthYear",
     "longDate", "longMonthYear", "shortMonthYear", "year"];
 
@@ -518,8 +531,8 @@ function btnDateStyle(id, elem){
     }
 }
 
-function btnDecimStyle(id, elem){
-    const field_obj = myApp.fieldObj[id];
+function btnDecimStyle(fieldname, elem){
+    const field_obj = myApp.fieldObj[fieldname];
     const imgNode = elem.firstElementChild;
 
     if (field_obj.format !== null && field_obj.format.hasOwnProperty("places")){
