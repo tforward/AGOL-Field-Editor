@@ -28,6 +28,7 @@
   max-width: 22em;
   height: 1.3em;
   transition: 1.3s;
+  display: flex;
 } 
 
 /* *\
@@ -72,7 +73,13 @@
 	border-style: inset;
 }
 
+.field{
+  flex: 1;
+}
+
+
 .btn_panel{
+  display: flex;
   background-color: white;
   float: right;
 }
@@ -91,7 +98,7 @@
   display: inline-block;
 }
 
-.dropdown-content {
+.dropdown-contentDate {
   display: block;
   position: absolute;
   background-color: #f9f9f9;
@@ -150,7 +157,6 @@
 }
 
 .center{
-
   display: flex;
   justify-content: center; /* center items horizontally, in this case */
   align-items: center;
