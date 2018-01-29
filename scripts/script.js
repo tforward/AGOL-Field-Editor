@@ -36,6 +36,7 @@ function Main(){
 
   myApp.fields = add_fields("content");
   myApp.fields = add_btns(myApp.fields);
+  applyBtnDefaults(myApp.fields);
 }
 
 
@@ -113,7 +114,6 @@ function FieldDelegator(){
         this.input.id = "active_text_input";
         this.input.className = "inputFieldname";
         this.input.title = "Repress Button or hit enter to set";
-        //this.input.autofocus = true;
         this.input.value = this.obj.label;
         this.input.addEventListener("keyup", submitLabel.bind(this));
         this.labelDiv.appendChild(this.input);
@@ -122,6 +122,7 @@ function FieldDelegator(){
     field.Panel = function(){
         this.panel = document.createElement("div");
         this.panel.className = "btn_panel";
+        this.panel.id = null;
         this.panel.toggle = 0;
         this.elem.appendChild(this.panel);
         return this
@@ -199,11 +200,10 @@ function ImageDelegator(){
 function btnAction(btn, field){
     // TODO need to build-out redo the filters
     {
-    //btn.panel.toggle ^= 1;
-    
+        btn.panel.toggle ^= 1;
+        setActiveBtnPanel(btn);
     switch(btn.btnName){
         case "Label":
-            //TO enable this
             showLabel(btn, field);
             setLabel(field);
             btnLabelStyle(btn);
@@ -236,6 +236,33 @@ function btnAction(btn, field){
             console.log("btnAction case not found: ", btn.btnName)
     }
     }
+}
+
+function setActiveBtnPanel(curBtn){
+    let fields = myApp.fields
+
+    let activePanel = myApp.fields.filter(i => {
+        return i.panel.toggle === 1
+    })
+
+    // TODO I have the activePanel
+    // I need find out what button is active in it
+    // then switch the toggle on all, and close them, or hidden may work too;
+    console.log(activePanel[0])
+
+    // if (activePanel !== null){
+    //     closePreviousPanel(activePanel)
+    //     //myApp.fields
+
+    // }
+
+    // if (curBtn.panel.toggle){
+    //     curBtn.panel.id = "activePanel";
+    // }
+}
+
+function closePreviousPanel(activePanel){
+    console.log(activePanel.fieldname)
 }
 
 function add_fields(elem_id){
@@ -285,7 +312,7 @@ function add_btn(field, title, src, alt, name, fragment){
 
     btn.setup(field);
     btn.define()
-    // This way below will show-up in the DOM directly
+    // If need to show-up in the DOM directly use method below
     //btn.elem.setAttribute("name", name)
     btn.elem.parent = field;
     btn.elem.panel = field.panel;
@@ -535,6 +562,34 @@ function digitSetBtn(field, input, parentbtn){
     field.dropdown.className += " hidden";
     parentbtn.toggle = 0;
     btnDecimStyle(field, parentbtn);
+}
+
+function applyBtnDefaults(fields){
+    fields.forEach(field => {
+        field.btns.map(btn => btnTypeSorter(field, btn));
+    })
+}
+
+function btnTypeSorter(field, btn){
+    switch(btn.elem.className){
+        case "Label":
+            btnLabelStyle(btn.elem);
+            break;
+        case "Visiblity":
+            btnVisibilityStyle(btn.elem);
+            break;
+        case "Seperator":
+            btnSeparatorStyle(field, btn.elem);
+            break;
+        case "Date":
+            btnDateStyle(field, btn.elem);
+            break;
+        case "Digit":
+            btnDecimStyle(field, btn.elem);
+            break;
+        default:
+            console.log(`Button type $(btn.elem.className) not found.`);
+    }
 }
 
 // ======================================================================
