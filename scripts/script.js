@@ -244,46 +244,32 @@ function btnAction(btn, field){
 function setBtnIdActive(btn, field){
     if (btn.toggle === 1){
         field.activeBtn = btn;
+        btn.id = "active"
     }
     else{
         field.activeBtn = null;
+        btn.id = null;
     }
 }
 
 
 function setActiveBtnPanel(btn){
-    let field = myApp.fields.filter(i => {return i.activeBtn != null})
+    let field = myApp.fields
+    .filter(i => {return (i.activeBtn != null)})
 
+        //TODO It's still fucked here on the third click... UGH!
     if (field[0] != undefined){
+        if (field[0].activeBtn.id != null){
+        //console.log(field[0].activeBtn.id)
         let onBtn = field[0]
-
-        // This just tellms me what btn need to get the btn.elem version
-        console.log(onBtn.activeBtn.className)
-        onBtn.activeBtn.toggle = 0
+        let active = (onBtn.btns.filter(i => i.elem.id === "active"))
+        active[0].elem.toggle = 0;
+        active[0].elem.id = null;
         field.activeBtn = null;
-
-        // TODO I need to get the BTN.elem version to pass
-        //btnTypeSorter(field, onBtn.activeBtn)
+        btnTypeSorter(field, active[0])
+        showLabel(active[0], field[0]);
+        }
     }
-    
-
-    // function checkForActiveClassname(classname){
-    //     let active = Array.from(document.getElementsByClassName(classname));
-    //     return active.filter(i => i.toggle === 1);
-    // }
-
-    // let activeLabel = checkForActiveClassname("Label");
-    // let activeDate = checkForActiveClassname("Date");
-    // let activeDigit = checkForActiveClassname("Digit");
-
-    // console.log(activeLabel)
-
-
-
-    // TODO I have the activePanel
-    // I need find out what button is active in it
-    // then switch the toggle on all, and close them, or hidden may work too;
-
 }
 
 
