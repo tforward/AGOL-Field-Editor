@@ -95,6 +95,7 @@ function FieldDelegator(){
     };
     field.define = function(){
         this.elem.innerHTML = null;
+        this.activeBtn = null;
         return this
     };
     field.CreateLabel = function(){
@@ -204,6 +205,7 @@ function btnAction(btn, field){
         setActiveBtnPanel(btn);
     switch(btn.btnName){
         case "Label":
+            setBtnIdActive(btn, field);
             showLabel(btn, field);
             setLabel(field);
             btnLabelStyle(btn);
@@ -238,32 +240,53 @@ function btnAction(btn, field){
     }
 }
 
-function setActiveBtnPanel(curBtn){
-    let fields = myApp.fields
 
-    let activePanel = myApp.fields.filter(i => {
-        return i.panel.toggle === 1
-    })
+function setBtnIdActive(btn, field){
+    if (btn.toggle === 1){
+        field.activeBtn = btn;
+    }
+    else{
+        field.activeBtn = null;
+    }
+}
+
+
+function setActiveBtnPanel(btn){
+    let field = myApp.fields.filter(i => {return i.activeBtn != null})
+
+    if (field[0] != undefined){
+        let onBtn = field[0]
+
+        // This just tellms me what btn need to get the btn.elem version
+        console.log(onBtn.activeBtn.className)
+        onBtn.activeBtn.toggle = 0
+        field.activeBtn = null;
+
+        // TODO I need to get the BTN.elem version to pass
+        //btnTypeSorter(field, onBtn.activeBtn)
+    }
+    
+
+    // function checkForActiveClassname(classname){
+    //     let active = Array.from(document.getElementsByClassName(classname));
+    //     return active.filter(i => i.toggle === 1);
+    // }
+
+    // let activeLabel = checkForActiveClassname("Label");
+    // let activeDate = checkForActiveClassname("Date");
+    // let activeDigit = checkForActiveClassname("Digit");
+
+    // console.log(activeLabel)
+
+
 
     // TODO I have the activePanel
     // I need find out what button is active in it
     // then switch the toggle on all, and close them, or hidden may work too;
-    console.log(activePanel[0])
 
-    // if (activePanel !== null){
-    //     closePreviousPanel(activePanel)
-    //     //myApp.fields
-
-    // }
-
-    // if (curBtn.panel.toggle){
-    //     curBtn.panel.id = "activePanel";
-    // }
 }
 
-function closePreviousPanel(activePanel){
-    console.log(activePanel.fieldname)
-}
+
 
 function add_fields(elem_id){
     // TODO CAN USE FRAGEMENT HERE
