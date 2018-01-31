@@ -5,7 +5,7 @@
 
 // TODO
 
-// Set defaults for button's on load
+// There is something wrong with setting the date atm
 
 
 let myApp = FieldApp();
@@ -19,6 +19,8 @@ function FieldApp(){
       },
       elems: function(fields){
         this.fields = fields;
+        this.activeBtn = null;
+        this.activeField = null;
         return this
       },
     };
@@ -33,10 +35,37 @@ function Main(){
   const json_data = parse_json("text_data");
   const fieldObjects = get_unique_field_objs(json_data);
   myApp.init(fieldObjects);
-
+  
   myApp.fields = add_fields("content");
   myApp.fields = add_btns(myApp.fields);
   applyBtnDefaults(myApp.fields);
+  setupFilter("filter_visible", filterVisible)
+  setupFilter("filter_digitSeparator", filterDigit)
+  setupFilter("filter_dates", filterDate)
+}
+
+function setupFilter(elem, func){
+    const btn = document.getElementById(elem);
+    btn.addEventListener("click", func.bind(null));
+}
+
+function filterVisible(){
+    myApp.fields.filter(field => (field.obj.visible != true))
+        .map(i => i.elem.className = "hidden");
+}
+
+function filterDigit(){
+    myApp.fields.filter(field => field.obj.format !== null &&
+        !field.obj.format.hasOwnProperty("digitSeparator") ||
+        field.obj.format === null)
+        .map(field => field.elem.className = "hidden");
+}
+
+function filterDate(){
+    myApp.fields.filter(field => field.obj.format !== null &&
+        !field.obj.format.hasOwnProperty("dateFormat") ||
+        field.obj.format === null)
+        .map(field => field.elem.className = "hidden");
 }
 
 
@@ -202,17 +231,18 @@ function btnAction(btn, field){
     // TODO need to build-out redo the filters
     {
         btn.panel.toggle ^= 1;
-        setActiveBtnPanel(btn);
+        resetActiveBtn();
+        setBtnIdActive(btn, field);
+        
     switch(btn.btnName){
         case "Label":
-            setBtnIdActive(btn, field);
             showLabel(btn, field);
             setLabel(field);
             btnLabelStyle(btn);
             break;
         case "Visiblity":
             setVisiblity(field.obj);
-            btnVisibilityStyle(btn);
+            btnVisibilityStyle(field, btn);
             break;
         case "Seperator":
             setSeperator(field.obj);
@@ -243,31 +273,32 @@ function btnAction(btn, field){
 
 function setBtnIdActive(btn, field){
     if (btn.toggle === 1){
-        field.activeBtn = btn;
-        btn.id = "active"
+        myApp.activeBtn = btn;
+        myApp.activeField = field;
     }
     else{
-        field.activeBtn = null;
-        btn.id = null;
+        myApp.activeBtn = null;
+        myApp.activeField = null;
     }
 }
 
 
-function setActiveBtnPanel(btn){
-    let field = myApp.fields
-    .filter(i => {return (i.activeBtn != null)})
-
-        //TODO It's still fucked here on the third click... UGH!
-    if (field[0] != undefined){
-        if (field[0].activeBtn.id != null){
-        //console.log(field[0].activeBtn.id)
-        let onBtn = field[0]
-        let active = (onBtn.btns.filter(i => i.elem.id === "active"))
-        active[0].elem.toggle = 0;
-        active[0].elem.id = null;
-        field.activeBtn = null;
-        btnTypeSorter(field, active[0])
-        showLabel(active[0], field[0]);
+function resetActiveBtn(){
+    const btn = myApp.activeBtn;
+    const field = myApp.activeField;
+    if (btn != null){
+        let active = myApp.activeBtn.className;
+        btn.toggle = 0;
+        if (active === "Label"){
+            showLabel(btn, field);
+            setLabel(field);
+            btnLabelStyle(btn)
+        }
+        else if (active === "Date"){
+            dateDropdown(field, btn);
+        }
+        else if (active === "Digit"){
+            digitDropdown(field, btn);
         }
     }
 }
@@ -393,11 +424,19 @@ function submitLabel(event){
 // Visible Button
 // ======================================================================
 
-function btnVisibilityStyle(elem){
+function btnVisibilityStyle(field, elem){
     const imgNode = elem.firstElementChild;
-    imgNode.src = elem.toggle ^1 ? "images/light_on.svg" : "images/light_off.svg";
-    imgNode.alt = elem.toggle ^1 ? "Visible" : "Hidden" ;
-    imgNode.title = elem.toggle ^1 ? "Visible" : "Hidden" ;
+
+    if (field.obj.visible === true){
+        imgNode.src = "images/light_on.svg";
+        imgNode.alt = "Visible";
+        imgNode.title = "Visible";
+    }
+    else{
+        imgNode.src = "images/light_off.svg";
+        imgNode.alt = "Hidden";
+        imgNode.title = "Hidden";
+    }
 }
 
 // ======================================================================
@@ -408,8 +447,8 @@ function btnSeparatorStyle(field, btn){
     const imgNode = btn.firstElementChild;
 
     if (field.obj.format !== null && field.obj.format.hasOwnProperty("digitSeparator")){
-        imgNode.src = !field.obj.format["digitSeparator"] === false ? "images/comma_off.png" : "images/comma_on.png";
-        imgNode.alt, imgNode.title =  !field.obj.format["digitSeparator"] === false ? "Separator Off" : "Separator On";
+        imgNode.src = field.obj.format["digitSeparator"] === false ? "images/comma_off.png" : "images/comma_on.png";
+        imgNode.alt, imgNode.title =  field.obj.format["digitSeparator"] === false ? "Separator Off" : "Separator On";
     }
     else{
         imgNode.src = "images/comma_na.png";
@@ -585,7 +624,7 @@ function btnTypeSorter(field, btn){
             btnLabelStyle(btn.elem);
             break;
         case "Visiblity":
-            btnVisibilityStyle(btn.elem);
+            btnVisibilityStyle(field, btn.elem);
             break;
         case "Seperator":
             btnSeparatorStyle(field, btn.elem);
