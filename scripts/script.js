@@ -39,12 +39,13 @@ function Main(){
   myApp.fields = add_fields("content");
   myApp.fields = add_btns(myApp.fields);
   applyBtnDefaults(myApp.fields);
-  setupFilter("filter_visible", filterVisible)
-  setupFilter("filter_digitSeparator", filterDigit)
-  setupFilter("filter_dates", filterDate)
+  setupEvent("filter_visible", filterVisible)
+  setupEvent("filter_digitSeparator", filterDigit)
+  setupEvent("filter_dates", filterDate)
+  setupEvent("edit_labels", editLabels)
 }
 
-function setupFilter(elem, func){
+function setupEvent(elem, func){
     const btn = document.getElementById(elem);
     btn.addEventListener("click", func.bind(null));
 }
@@ -66,6 +67,11 @@ function filterDate(){
         !field.obj.format.hasOwnProperty("dateFormat") ||
         field.obj.format === null)
         .map(field => field.elem.className = "hidden");
+}
+
+function editLabels(){
+    // TODO IM HERE
+    myApp.fields.map(field => (field.obj.label = field.obj.label.toUpperCase()))
 }
 
 
@@ -231,7 +237,7 @@ function btnAction(btn, field){
     // TODO need to build-out redo the filters
     {
         btn.panel.toggle ^= 1;
-        resetActiveBtn();
+        resetActiveBtn(btn);
         setBtnIdActive(btn, field);
         
     switch(btn.btnName){
@@ -283,22 +289,24 @@ function setBtnIdActive(btn, field){
 }
 
 
-function resetActiveBtn(){
-    const btn = myApp.activeBtn;
-    const field = myApp.activeField;
-    if (btn != null){
-        let active = myApp.activeBtn.className;
-        btn.toggle = 0;
-        if (active === "Label"){
-            showLabel(btn, field);
-            setLabel(field);
-            btnLabelStyle(btn)
-        }
-        else if (active === "Date"){
-            dateDropdown(field, btn);
-        }
-        else if (active === "Digit"){
-            digitDropdown(field, btn);
+function resetActiveBtn(currentBtn){
+    if (currentBtn !== myApp.activeBtn){
+        const btn = myApp.activeBtn;
+        const field = myApp.activeField;
+        if (btn != null){
+            let active = myApp.activeBtn.className;
+            btn.toggle = 0;
+            if (active === "Label"){
+                showLabel(btn, field);
+                setLabel(field);
+                btnLabelStyle(btn)
+            }
+            else if (active === "Date"){
+                dateDropdown(field, btn);
+            }
+            else if (active === "Digit"){
+                digitDropdown(field, btn);
+            }
         }
     }
 }
@@ -498,6 +506,7 @@ function dateContent(field, btn){
 }
 
 function dateDropdown(field, elem){
+    //console.log(elem.toggle)
     if (field.obj.format !== null && field.obj.format.hasOwnProperty("dateFormat")){
         if (elem.toggle === 1){
             field.dropdown.className = "dropdown";
