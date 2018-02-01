@@ -42,12 +42,12 @@ function Main(){
   setupEvent("filter_visible", filterVisible)
   setupEvent("filter_digitSeparator", filterDigit)
   setupEvent("filter_dates", filterDate)
-  setupEvent("edit_labels", editLabels)
+  setupEvent("label_dropdown", editLabels)
 }
 
 function setupEvent(elem, func){
     const btn = document.getElementById(elem);
-    btn.addEventListener("click", func.bind(null));
+    btn.addEventListener("click", func.bind(this, btn));
 }
 
 function filterVisible(){
@@ -69,11 +69,32 @@ function filterDate(){
         .map(field => field.elem.className = "hidden");
 }
 
-function editLabels(){
-    // TODO IM HERE
-    myApp.fields.map(field => (field.obj.label = field.obj.label.toUpperCase()))
+function editLabels(btn){
+    switch(btn.value){
+        case "title_case":
+            setAllLabels(toTitleCase);
+            break;
+        case "lower_case":
+            setAllLabels(toLower);
+            break;
+        case "upper_case":
+            setAllLabels(toUpper);
+            break;
+        case "match_fields":
+            setAllLabels(toFieldname);
+            break;
+        case "default_label":
+            setAllLabels(toDefault);
+            break;
+    }
 }
 
+function setAllLabels(func){
+    myApp.fields.map(field => 
+        (field.obj.label = func(field),
+        (field.label.textContent = field.obj.label)) // Resets DOM
+    )
+}
 
 // ======================================================================
 // Process Data
@@ -140,6 +161,7 @@ function FieldDelegator(){
         this.label.className = "field_label";
         this.label.textContent = this.obj.label;
         this.label.title = `Fieldname: ${this.fieldname}`;
+        this.label.default= this.obj.label;
         this.labelDiv.appendChild(this.label);
         this.elem.appendChild(this.labelDiv);
         return this
@@ -686,6 +708,30 @@ function find_attribute_value(collection, attr_value){
     // Return -1 means not found
     return -1
 }
+
+function toTitleCase(field){
+    return field.obj.label.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+function toLower(field){
+    return field.obj.label.toLowerCase();
+}
+
+function toUpper(field){
+    return field.obj.label.toUpperCase();
+}
+
+function toFieldname(field){
+    return field.fieldname;
+}
+
+function toDefault(field){
+    return field.label.default;
+}
+
+
+
+
 
 // ======================================================================
 //  On-Load Handle
