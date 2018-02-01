@@ -14,35 +14,34 @@
     <div id="header">
         <h2>ArcGIS Online Field Editor</h2>
 
-
-
-        <div id="testing">
-        </div>
-
-
         <form>
           <label><input type="radio" name="colors" id="filter_visible">Filter by Visible<br></label>
           <label><input type="radio" name="colors" id="filter_digitSeparator">Filter by Digit Seperator</label>
-          <label><input type="radio" name="colors" id="edit_labels">Edit Labels</label>
           <label><input type="radio" name="colors" id="filter_dates">Filter by Date Field</label>
         </form>
         
-        <select id="selection_dropdown">
-          <option value="none" selected></option>
-          <option value="all_on">Set all On</option>
-          <option value="all_off">Set all Off</option>
-          <option value="all_invert">Invert Selection</option>
-        </select>
+        <div>
+          <select id="selection_dropdown">
+            <option value="none" selected></option>
+            <option value="all_on">Set all On</option>
+            <option value="all_off">Set all Off</option>
+            <option value="all_invert">Invert Selection</option>
+          </select>
+        </div>
         
-        <select id="label_dropdown">
-          <option value="none" selected></option>
-          <option value="title_case">Title Case</option>
-          <option value="lower_case">Lower Case</option>
-          <option value="upper_case">Upper Case</option>
-          <option value="match_fields">Match Fieldnames</option>
-          <option value="default_label">Default Label</option>
-        </select>
+        <div>
+          <h4>Set All Labels:</h4>
+          <select id="label_dropdown">
+            <option value="none" selected></option>
+            <option value="title_case">Title Case</option>
+            <option value="lower_case">Lower Case</option>
+            <option value="upper_case">Upper Case</option>
+            <option value="match_fields">Match Fieldnames</option>
+            <option value="default_label">Default Label</option>
+          </select>
+        </div>
 
+        <div>
         <select id="date_dropdown">
           <option value="none" selected></option>
           <option value="year"> 1997</option>
@@ -60,6 +59,7 @@
           <option value="shortDateShortTime24"> 12/21/1997 18:00</option>
           <option value="shortDateLEShortTime24"> 21/12/1997 18:00</option>
         </select>
+      </div>
     </div>
       <!== Content from JS goes here ==!>
       <div class="aligner" id="content">
