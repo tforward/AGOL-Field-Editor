@@ -10,12 +10,24 @@
 
 <body>
 <div>
+
   <div class="flex-container">
     <div id="header">
         <h2>ArcGIS Online Field Editor</h2>
 
+        <div id="triState" class="triHolder">
+            <label class="triLabel center">Default</label>
+            <div class="center">
+            <label class="triSwitch">
+              <span class="triSlider round">
+                <span class="triBall"></span>
+                <button class="triBtn" type="button"></button>
+              </span>
+            </label>
+            </div>
+          </div>
+
         <form>
-          <label><input type="radio" name="colors" id="filter_visible">Filter by Visible<br></label>
           <label><input type="radio" name="colors" id="filter_digitSeparator">Filter by Digit Seperator</label>
           <label><input type="radio" name="colors" id="filter_dates">Filter by Date Field</label>
         </form>

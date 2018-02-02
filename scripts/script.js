@@ -5,9 +5,6 @@
 
 // TODO
 
-// There is something wrong with setting the date atm
-
-
 let myApp = FieldApp();
 
 function FieldApp(){
@@ -35,14 +32,15 @@ function Main(){
   const json_data = parse_json("text_data");
   const fieldObjects = get_unique_field_objs(json_data);
   myApp.init(fieldObjects);
-  
   myApp.fields = add_fields("content");
   myApp.fields = add_btns(myApp.fields);
   applyBtnDefaults(myApp.fields);
-  setupEvent("filter_visible", filterVisible)
   setupEvent("filter_digitSeparator", filterDigit)
   setupEvent("filter_dates", filterDate)
   setupEvent("label_dropdown", editLabels)
+
+  let triState= Object.create(TriStateBtnDelegator());
+  triState.setup("triState", TriVisibleAction);
 }
 
 function setupEvent(elem, func){
@@ -50,9 +48,13 @@ function setupEvent(elem, func){
     btn.addEventListener("click", func.bind(this, btn));
 }
 
-function filterVisible(){
-    myApp.fields.filter(field => (field.obj.visible != true))
-        .map(i => i.elem.className = "hidden");
+function filterVisible(propClass, filter){
+    myApp.fields.filter(field => (field.obj.visible != filter))
+        .map(i => i.elem.className = propClass);
+}
+
+function ResetVisible(propClass){
+    myApp.fields.map(i => i.elem.className = propClass);
 }
 
 function filterDigit(){
@@ -251,9 +253,63 @@ function ImageDelegator(){
     return Image
 }
 
+function TriStateBtnDelegator(){
+    const Button = Object.create(null);
+  
+    Button.setup = function(elemId, func){
+        this.holder = document.getElementById(elemId);
+        this.label = this.holder.getElementsByClassName("triLabel")[0];
+        this.btn = this.holder.getElementsByClassName("triBtn")[0];
+        this.slider = this.holder.getElementsByClassName("triSlider")[0];
+        this.ball = this.holder.getElementsByClassName("triBall")[0];
+        this.btn.toggle = 0;
+        this.label.textContent = "All";
+        this.func = func;
+        this.btn.addEventListener("click", this.onClick.bind(this));
+        return this
+    };
+    Button.onClick = function() {
+         if (this.btn.toggle >= 1){
+           this.btn.toggle = -1;
+         }
+         else{
+          this.btn.toggle += 1;
+         }
+         this.func(this);
+    };
+    return Button
+}
+
 // ======================================================================
 // Field Buttons
 // ======================================================================
+
+function TriVisibleAction(self){
+    {
+        ResetVisible("aligner-field")
+    switch(self.btn.toggle){
+      case -1:
+        self.label.textContent = "Hidden";
+        self.slider.className = "triSlider round disable";
+        self.ball.className = "triBall last";
+        filterVisible("aligner-field hidden", false);
+        break;
+      case 0:
+        self.label.textContent = "All";
+        self.slider.className = "triSlider round";
+        self.ball.className = "triBall";
+        ResetVisible("aligner-field")
+        break;
+      case 1:
+        self.label.textContent = "Visible";
+        self.slider.className = "triSlider round enable";
+        self.ball.className = "triBall middle";
+        filterVisible("aligner-field hidden", true);
+        break;
+    }
+    }
+  }
+
 
 function btnAction(btn, field){
     // TODO need to build-out redo the filters

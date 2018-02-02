@@ -156,14 +156,86 @@
   display: inline-block;
 }
 
+
+/* ============================================================================= */
+/* Tri-State Button */
+/* ============================================================================= */
+
+.triHolder{
+  margin-top: 10px;
+}
+
+.triLabel{
+display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.triSwitch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.triSwitch button {display:none;}
+
+/* The slider */
+.triSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 34px;
+  background-color: #ccc;
+  transition: .4s ease;
+  -webkit-transition: .4s ease;
+}
+
+.triBall {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  border-radius: 50%;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.disable{
+  background-color: #EB5B43;
+}
+
+.enable{
+  background-color: #49D06E;
+}
+
+.last{
+  left: 30px;
+}
+
+.middle{
+  left: 17px;
+}
+
+.midframe{
+  height: 95vh;;
+}
+
+/* ============================================================================= */
+/* Keep these rules at bottom of CSS */
+
 .center{
   display: flex;
   justify-content: center; /* center items horizontally, in this case */
   align-items: center;
 }
 
-
-/* Keep these rules at bottom of CSS */
 .hidden{
 	display: none;
 }
@@ -171,3 +243,4 @@
 .hide{
   opacity: 0;
 }
+
