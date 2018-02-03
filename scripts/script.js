@@ -34,41 +34,30 @@ function Main(){
   myApp.init(fieldObjects);
   myApp.fields = add_fields("content");
   myApp.fields = add_btns(myApp.fields);
+
+  //console.log(myApp.fields)
+
   applyBtnDefaults(myApp.fields);
-  setupEvent("filter_digitSeparator", filterDigit)
-  setupEvent("filter_dates", filterDate)
+
   setupEvent("label_dropdown", editLabels)
 
-  let triState= Object.create(TriStateBtnDelegator());
-  triState.setup("triState", TriVisibleAction);
+  const triState = Object.create(TriStateBtnDelegator());
+  triState.setup("triState", triVisibleAction);
+
+  const triStateDigit = Object.create(TriStateBtnDelegator());
+  triStateDigit.setup("triStateDigit", triDigitAction);
+
+  const toggleDecimal = Object.create(ToggleBtnDelegator());
+  toggleDecimal.setup("toggleDecimal", toggleDecimalAction);
+
+  const toggleDate = Object.create(ToggleBtnDelegator());
+  toggleDate.setup("toggleDate", toggleDateAction);
+
 }
 
 function setupEvent(elem, func){
     const btn = document.getElementById(elem);
     btn.addEventListener("click", func.bind(this, btn));
-}
-
-function filterVisible(propClass, filter){
-    myApp.fields.filter(field => (field.obj.visible != filter))
-        .map(i => i.elem.className = propClass);
-}
-
-function ResetVisible(propClass){
-    myApp.fields.map(i => i.elem.className = propClass);
-}
-
-function filterDigit(){
-    myApp.fields.filter(field => field.obj.format !== null &&
-        !field.obj.format.hasOwnProperty("digitSeparator") ||
-        field.obj.format === null)
-        .map(field => field.elem.className = "hidden");
-}
-
-function filterDate(){
-    myApp.fields.filter(field => field.obj.format !== null &&
-        !field.obj.format.hasOwnProperty("dateFormat") ||
-        field.obj.format === null)
-        .map(field => field.elem.className = "hidden");
 }
 
 function editLabels(btn){
@@ -96,6 +85,30 @@ function setAllLabels(func){
         (field.obj.label = func(field),
         (field.label.textContent = field.obj.label)) // Resets DOM
     )
+}
+
+// ======================================================================
+// Filters
+// ======================================================================
+
+
+
+function filterNullsNoProp(propClass, prop){
+    myApp.fields.filter(field => (field.obj.format == null ||
+        !field.obj.format.hasOwnProperty(prop)))
+        .map(field => field.elem.className += propClass)
+}
+
+function filterVisible(propClass, bool){
+    myApp.fields.filter(field => (field.obj.visible != bool))
+        .map(i => i.elem.className += propClass);
+}
+
+function filterDigit(propClass, bool){
+    myApp.fields.filter(field => (field.obj.format !== null &&
+        field.obj.format.hasOwnProperty("digitSeparator")))
+        .filter(field => field.obj.format.digitSeparator === bool)
+        .map(field => field.elem.className += propClass)
 }
 
 // ======================================================================
@@ -253,21 +266,26 @@ function ImageDelegator(){
     return Image
 }
 
-function TriStateBtnDelegator(){
-    const Button = Object.create(null);
-  
-    Button.setup = function(elemId, func){
-        this.holder = document.getElementById(elemId);
-        this.label = this.holder.getElementsByClassName("triLabel")[0];
-        this.btn = this.holder.getElementsByClassName("triBtn")[0];
-        this.slider = this.holder.getElementsByClassName("triSlider")[0];
-        this.ball = this.holder.getElementsByClassName("triBall")[0];
-        this.btn.toggle = 0;
-        this.label.textContent = "All";
-        this.func = func;
-        this.btn.addEventListener("click", this.onClick.bind(this));
-        return this
+function BtnElem(){
+    const Button = {
+        setup: function(elemId, func){
+          this.div = document.getElementById(elemId);
+          this.label = this.div.getElementsByClassName("btnLabel")[0];
+          this.btn = this.div.getElementsByClassName("btn")[0];
+          this.slider = this.div.getElementsByClassName("btnSlider")[0];
+          this.ball = this.div.getElementsByClassName("btnBall")[0];
+          this.btn.toggle = 0;
+          this.func = func;
+          this.btn.addEventListener("click", this.onClick.bind(this));
+          return this
+        }
     };
+  return Button
+}
+
+function TriStateBtnDelegator(){
+    const Button = Object.create(BtnElem());
+
     Button.onClick = function() {
          if (this.btn.toggle >= 1){
            this.btn.toggle = -1;
@@ -275,41 +293,124 @@ function TriStateBtnDelegator(){
          else{
           this.btn.toggle += 1;
          }
+         this.style();
+         this.func(this);
+    };
+      Button.style = function(){
+      switch(this.btn.toggle){
+          case -1:
+            this.slider.className = "btnSlider round disable";
+            this.ball.className = "btnBall last";
+            break;
+          case 0:
+            this.slider.className = "btnSlider round";
+            this.ball.className = "btnBall";
+            break;
+          case 1:
+            this.slider.className = "btnSlider round enable";
+            this.ball.className = "btnBall middle";
+            break;
+       }
+    };
+    return Button
+}
+
+function ToggleBtnDelegator(){
+    const Button = Object.create(BtnElem());
+  
+    Button.onClick = function() {
+         if (this.btn.toggle === 1){
+           this.btn.toggle = 0;
+           this.slider.className = "btnSlider round";
+           this.ball.className = "btnBall";
+         }
+         else{
+          this.btn.toggle += 1;
+          this.slider.className = "btnSlider round enable";
+          this.ball.className = "btnBall last";
+         }
          this.func(this);
     };
     return Button
 }
 
 // ======================================================================
-// Field Buttons
+// Filter Buttons
 // ======================================================================
 
-function TriVisibleAction(self){
+function triVisibleAction(self){
     {
-        ResetVisible("aligner-field")
+        replaceClassname(" VisibleHidden");
     switch(self.btn.toggle){
       case -1:
         self.label.textContent = "Hidden";
-        self.slider.className = "triSlider round disable";
-        self.ball.className = "triBall last";
-        filterVisible("aligner-field hidden", false);
+        filterVisible(" VisibleHidden", false);
         break;
       case 0:
         self.label.textContent = "All";
-        self.slider.className = "triSlider round";
-        self.ball.className = "triBall";
-        ResetVisible("aligner-field")
         break;
       case 1:
         self.label.textContent = "Visible";
-        self.slider.className = "triSlider round enable";
-        self.ball.className = "triBall middle";
-        filterVisible("aligner-field hidden", true);
+        filterVisible(" VisibleHidden", true);
         break;
     }
     }
   }
 
+  function triDigitAction(self){
+    {
+        replaceClassname(" DigitHidden");
+    switch(self.btn.toggle){
+      case -1:
+        self.label.textContent = "Off";
+        filterDigit(" DigitHidden", true)
+        filterNullsNoProp(" DigitHidden", "digitSeparator")
+        break;
+      case 0:
+        self.label.textContent = "All";
+        break;
+      case 1:
+        self.label.textContent = "On";
+        filterDigit(" DigitHidden", false)
+        filterNullsNoProp(" DigitHidden", "digitSeparator")
+        break;
+    }
+    }
+  }
+
+  function toggleDecimalAction(self){
+    {
+        replaceClassname(" DecimalHidden");
+    switch(self.btn.toggle){
+      case 0:
+        self.label.textContent = "All";
+        break;
+      case 1:
+        self.label.textContent = "On";
+        filterNullsNoProp(" DecimalHidden", "places")
+        break;
+    }
+    }
+  }
+
+  function toggleDateAction(self){
+    {
+        replaceClassname(" dateHidden");
+    switch(self.btn.toggle){
+      case 0:
+        self.label.textContent = "All";
+        break;
+      case 1:
+        self.label.textContent = "On";
+        filterNullsNoProp(" dateHidden", "dateFormat")
+        break;
+    }
+    }
+  }
+
+// ======================================================================
+// Field Buttons
+// ======================================================================
 
 function btnAction(btn, field){
     // TODO need to build-out redo the filters
@@ -785,9 +886,10 @@ function toDefault(field){
     return field.label.default;
 }
 
-
-
-
+function replaceClassname(propClass){
+    myApp.fields.map(i => i.elem.className =
+        i.elem.className.replace(propClass, ""));
+}
 
 // ======================================================================
 //  On-Load Handle

@@ -11,7 +11,6 @@
   flex-direction: row;
   background-color: white;
   flex-wrap: wrap;
-
 }
 
 .aligner-field { 
@@ -161,17 +160,25 @@
 /* Tri-State Button */
 /* ============================================================================= */
 
-.triHolder{
-  margin-top: 10px;
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0.1em 0em 0.1em 0.5em;
 }
 
-.triLabel{
+.btnHolder{
+  margin-top: 10px;
+  padding: 0em 0em 0em 0.5em;
+}
+
+.btnLabel{
 display: block;
     margin-left: auto;
     margin-right: auto;
 }
 
-.triSwitch {
+.btnSwitch {
   position: relative;
   display: inline-block;
   width: 60px;
@@ -179,10 +186,10 @@ display: block;
 }
 
 /* Hide default HTML checkbox */
-.triSwitch button {display:none;}
+.btnSwitch button {display:none;}
 
 /* The slider */
-.triSlider {
+.btnSlider {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -195,7 +202,7 @@ display: block;
   -webkit-transition: .4s ease;
 }
 
-.triBall {
+.btnBall {
   position: absolute;
   height: 26px;
   width: 26px;
@@ -234,6 +241,22 @@ display: block;
   display: flex;
   justify-content: center; /* center items horizontally, in this case */
   align-items: center;
+}
+
+.VisibleHidden{
+	display: none;
+}
+
+.DigitHidden{
+	display: none;
+}
+
+.DecimalHidden{
+	display: none;
+}
+
+.dateHidden{
+	display: none;
 }
 
 .hidden{
