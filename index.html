@@ -71,6 +71,16 @@
             </div>
 
         </div>
+
+        <div id="labelDrop" class="dropdown">
+          <button class="dropBtn">Labels</button>
+          <div class="dropContent"></div>
+        </div>
+
+        <div id="dateDrop" class="dropdown">
+          <button class="dropBtn">Dates</button>
+          <div class="dropContent dates"></div>
+        </div>
         
         <div>
           <select id="selection_dropdown">
@@ -81,37 +91,7 @@
           </select>
         </div>
         
-        <div>
-          <h4>Set All Labels:</h4>
-          <select id="label_dropdown">
-            <option value="none" selected></option>
-            <option value="title_case">Title Case</option>
-            <option value="lower_case">Lower Case</option>
-            <option value="upper_case">Upper Case</option>
-            <option value="match_fields">Match Fieldnames</option>
-            <option value="default_label">Default Label</option>
-          </select>
-        </div>
 
-        <div>
-        <select id="date_dropdown">
-          <option value="none" selected></option>
-          <option value="year"> 1997</option>
-          <option value="shortMonthYear"> Dec 1997</option>
-          <option value="longMonthYear"> December 1997</option>
-          <option value="shortDate"> 12/21/1997</option>
-          <option value="shortDateLE"> 21/12/1997</option>
-          <option value="dayShortMonthYear"> 21 Dec 1997</option>
-          <option value="longMonthDayYear"> December 21,1997</option>
-          <option value="longDate"> Sunday, December 21, 1997</option>
-          <option value="shortDateLongTime">  12/21/1997 6:00:00 PM</option>
-          <option value="shortDateLELongTime"> 21/12/1997 6:00:00 PM</option>
-          <option value="shortDateShortTime"> 12/21/1997 6:00 PM</option>
-          <option value="shortDateLEShortTime">  21/12/1997 6:00 PM</option>
-          <option value="shortDateShortTime24"> 12/21/1997 18:00</option>
-          <option value="shortDateLEShortTime24"> 21/12/1997 18:00</option>
-        </select>
-      </div>
     </div>
       <!== Content from JS goes here ==!>
       <div class="aligner" id="content">

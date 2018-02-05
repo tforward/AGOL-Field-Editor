@@ -92,11 +92,6 @@
   opacity: 0.6;
 }
 
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
 .dropdown-contentDate {
   display: block;
   position: absolute;
@@ -235,7 +230,77 @@ display: block;
 }
 
 /* ============================================================================= */
+/* Dropdown
+/* ============================================================================= */
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropContent {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropContent span {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropContent span:hover {background-color: #ddd}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropContent {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropBtn {
+  background-color: #3e8e41;
+}
+
+.dropBtn{
+-webkit-font-smoothing: antialiased;
+background-color: lightgrey;
+border: none;
+display: inline-block;
+font-family: 'Montserrat', sans-serif;
+font-size: 14px;
+font-weight: 100;
+text-decoration: none;
+user-select: none;
+letter-spacing: 1px;
+color: white;
+padding: 20px 40px;
+text-transform: uppercase;
+transition: all 0.1s ease-out;
+}
+
+.dates {
+  padding: 0px 0px;
+  z-index: 1;
+  cursor: pointer;
+  min-width: 12em;
+}
+
+.dates span{
+  color: black;
+  padding: 0.2em 0.3em;
+  text-decoration: none;
+  display: block;
+}
+
+/* ============================================================================= */
 /* Keep these rules at bottom of CSS */
+/* ============================================================================= */
 
 .center{
   display: flex;

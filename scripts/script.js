@@ -39,8 +39,6 @@ function Main(){
 
   applyBtnDefaults(myApp.fields);
 
-  setupEvent("label_dropdown", editLabels)
-
   const triState = Object.create(TriStateBtnDelegator());
   triState.setup("triState", triVisibleAction);
 
@@ -53,45 +51,14 @@ function Main(){
   const toggleDate = Object.create(ToggleBtnDelegator());
   toggleDate.setup("toggleDate", toggleDateAction);
 
-}
+  addLabelDropdown();
+  addDateDropdown();
 
-function setupEvent(elem, func){
-    const btn = document.getElementById(elem);
-    btn.addEventListener("click", func.bind(this, btn));
-}
-
-function editLabels(btn){
-    switch(btn.value){
-        case "title_case":
-            setAllLabels(toTitleCase);
-            break;
-        case "lower_case":
-            setAllLabels(toLower);
-            break;
-        case "upper_case":
-            setAllLabels(toUpper);
-            break;
-        case "match_fields":
-            setAllLabels(toFieldname);
-            break;
-        case "default_label":
-            setAllLabels(toDefault);
-            break;
-    }
-}
-
-function setAllLabels(func){
-    myApp.fields.map(field => 
-        (field.obj.label = func(field),
-        (field.label.textContent = field.obj.label)) // Resets DOM
-    )
 }
 
 // ======================================================================
 // Filters
 // ======================================================================
-
-
 
 function filterNullsNoProp(propClass, prop){
     myApp.fields.filter(field => (field.obj.format == null ||
@@ -333,6 +300,78 @@ function ToggleBtnDelegator(){
     };
     return Button
 }
+
+// ======================================================================
+// Dropdown
+// ======================================================================
+
+function dropdownElem(){
+    const Dropdown = {
+      init: function(id){
+        this.elem = document.getElementById(id);
+        this.elem.btn = this.elem.getElementsByClassName("dropBtn")[0];
+        this.elem.content = this.elem.getElementsByClassName("dropContent")[0];
+        return this
+      },
+      append: function(...items){
+        let fragment = document.createDocumentFragment();
+        items.map(item => fragment.appendChild(item));
+        this.elem.content.appendChild(fragment);
+      }
+    };
+    return Dropdown
+  }
+  
+  function dropdownDelegator(){
+    const Dropdown = Object.create(dropdownElem());
+    
+    Dropdown.name = function(name){
+      this.elem.btn.textContent = name;
+    };
+    Dropdown.addItem = function(type, name, func){
+      this.item = document.createElement(type);
+      this.item.textContent = name;
+      // Passing the name here is optional
+      this.item.addEventListener("click", func.bind(this, name));
+      return this.item
+    }
+    Dropdown.action = function(action){
+      this.action = action;
+    }
+    return Dropdown 
+  }
+
+
+  function addLabelDropdown(){
+    const labelDrop = dropdownDelegator();
+    labelDrop.init("labelDrop"); 
+    labelDrop.name("Labels");
+    const item1 = labelDrop.addItem("span", "Lowercase", toLower);
+    const item2 = labelDrop.addItem("span", "Uppercase", toUpper);
+    const item3 = labelDrop.addItem("span", "Titlecase", toTitleCase);
+    const item4 = labelDrop.addItem("span", "Fieldname", toFieldname);
+    const item5 = labelDrop.addItem("span", "Default", toDefault);
+    labelDrop.append(item1, item2, item3, item4, item5)
+  }
+
+  function addDateDropdown(){
+    const dateDrop = dropdownDelegator();
+    dateDrop.init("dateDrop"); 
+    dateDrop.name("Dates");
+
+    const dateArry = dateArray();
+    let fragment = document.createDocumentFragment();
+    dateArry.forEach(data => {
+        let a = document.createElement("span");
+        a.textContent = data[1]; // text
+        a.dataset.value = data[0]; // value;
+        a.title = data[0] // tooltip
+        a.addEventListener("click", setAndStyleAllDates.bind(null, data[0]));
+        fragment.appendChild(a);
+    });
+    dateDrop.elem.content.appendChild(fragment);
+  }
+
 
 // ======================================================================
 // Filter Buttons
@@ -736,6 +775,15 @@ function setAndStyleDate(field, dateType, btn){
     btnDateStyle(field, btn)
 }
 
+function setAndStyleAllDates(dateType){
+    myApp.fields.filter(field => (field.obj.format != null &&
+        field.obj.format.hasOwnProperty("dateFormat")))
+        .map(field => (field.obj.format.dateFormat = dateType));
+    //TODO
+    // Need to style the btn, and/or some aleart to say date changed
+    // maybe close the dropdown window on click
+}
+
 // ======================================================================
 //  Digit Button
 // ======================================================================
@@ -867,23 +915,30 @@ function find_attribute_value(collection, attr_value){
 }
 
 function toTitleCase(field){
-    return field.obj.label.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    myApp.fields.map(field => (field.obj.label = field.obj.label
+        .replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase()
+             + txt.substr(1).toLowerCase();}),
+    field.label.textContent = field.obj.label));
 }
 
-function toLower(field){
-    return field.obj.label.toLowerCase();
+function toLower(){
+    myApp.fields.map(field => (field.obj.label = field.obj.label.toLowerCase(),
+     field.label.textContent = field.obj.label));
 }
 
 function toUpper(field){
-    return field.obj.label.toUpperCase();
+    myApp.fields.map(field => (field.obj.label = field.obj.label.toUpperCase(),
+     field.label.textContent = field.obj.label));
 }
 
 function toFieldname(field){
-    return field.fieldname;
+    myApp.fields.map(field => (field.obj.label = field.fieldname,
+    field.label.textContent = field.obj.label));
 }
 
 function toDefault(field){
-    return field.label.default;
+    myApp.fields.map(field => (field.obj.label = field.label.default,
+        field.label.textContent = field.obj.label));
 }
 
 function replaceClassname(propClass){
