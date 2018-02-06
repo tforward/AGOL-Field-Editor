@@ -35,15 +35,15 @@ function Main(){
   myApp.fields = add_fields("content");
   myApp.fields = add_btns(myApp.fields);
 
-  //console.log(myApp.fields)
+  console.log(myApp.fields)
 
   applyBtnDefaults(myApp.fields);
 
   const triState = Object.create(TriStateBtnDelegator());
   triState.setup("triState", triVisibleAction);
 
-  const triStateDigit = Object.create(TriStateBtnDelegator());
-  triStateDigit.setup("triStateDigit", triDigitAction);
+  const triStateSeparator = Object.create(TriStateBtnDelegator());
+  triStateSeparator.setup("triStateDigit", triDigitAction);
 
   const toggleDecimal = Object.create(ToggleBtnDelegator());
   toggleDecimal.setup("toggleDecimal", toggleDecimalAction);
@@ -53,6 +53,7 @@ function Main(){
 
   addLabelDropdown();
   addDateDropdown();
+  addSeparatorDropdown();
 
 }
 
@@ -313,11 +314,17 @@ function dropdownElem(){
         this.elem.content = this.elem.getElementsByClassName("dropContent")[0];
         return this
       },
-      append: function(...items){
-        let fragment = document.createDocumentFragment();
-        items.map(item => fragment.appendChild(item));
-        this.elem.content.appendChild(fragment);
-      }
+      append: function(items){
+        // append: Takes a DocumentFragment or an array of elements
+        if (items.nodeName === "#document-fragment"){
+            this.elem.content.appendChild(items);
+        }
+        else{
+            let fragment = document.createDocumentFragment();
+            items.map(item => fragment.appendChild(item));
+            this.elem.content.appendChild(fragment);
+            }
+        }
     };
     return Dropdown
   }
@@ -328,11 +335,10 @@ function dropdownElem(){
     Dropdown.name = function(name){
       this.elem.btn.textContent = name;
     };
-    Dropdown.addItem = function(type, name, func){
+    Dropdown.addItem = function(type, name, func, ...args){
       this.item = document.createElement(type);
       this.item.textContent = name;
-      // Passing the name here is optional
-      this.item.addEventListener("click", func.bind(this, name));
+      this.item.addEventListener("click", func.bind(this, name, ...args));
       return this.item
     }
     Dropdown.action = function(action){
@@ -351,7 +357,7 @@ function dropdownElem(){
     const item3 = labelDrop.addItem("span", "Titlecase", toTitleCase);
     const item4 = labelDrop.addItem("span", "Fieldname", toFieldname);
     const item5 = labelDrop.addItem("span", "Default", toDefault);
-    labelDrop.append(item1, item2, item3, item4, item5)
+    labelDrop.append([item1, item2, item3, item4, item5]);
   }
 
   function addDateDropdown(){
@@ -369,7 +375,16 @@ function dropdownElem(){
         a.addEventListener("click", setAndStyleAllDates.bind(null, data[0]));
         fragment.appendChild(a);
     });
-    dateDrop.elem.content.appendChild(fragment);
+    dateDrop.append(fragment)
+  }
+
+  function addSeparatorDropdown(){
+    const dropdown = dropdownDelegator();
+    dropdown.init("separatorDrop"); 
+    dropdown.name("Separator");
+    const item1 = dropdown.addItem("span", "Separator Off", setAllSeperators, false);
+    const item2 = dropdown.addItem("span", "Separator On", setAllSeperators, true);
+    dropdown.append([item1, item2]);
   }
 
 
@@ -780,7 +795,8 @@ function setAndStyleAllDates(dateType){
         field.obj.format.hasOwnProperty("dateFormat")))
         .map(field => (field.obj.format.dateFormat = dateType));
     //TODO
-    // Need to style the btn, and/or some aleart to say date changed
+    applyBtnDefaults(myApp.fields);
+    //and/or some aleart to say date changed
     // maybe close the dropdown window on click
 }
 
@@ -939,6 +955,13 @@ function toFieldname(field){
 function toDefault(field){
     myApp.fields.map(field => (field.obj.label = field.label.default,
         field.label.textContent = field.obj.label));
+}
+
+function setAllSeperators(name, boolean){
+    myApp.fields.filter(field => (field.obj.format != null &&
+        field.obj.format.hasOwnProperty("digitSeparator")))
+        .map(field => (field.obj.format.digitSeparator = boolean));
+    applyBtnDefaults(myApp.fields);
 }
 
 function replaceClassname(propClass){
