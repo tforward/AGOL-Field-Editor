@@ -10,6 +10,7 @@ module.exports = {
         "no-param-reassign": 0,
         "func-names": 0,
         "no-bitwise": 0,
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
 
         //
         "linebreak-style": ["error", "windows"],

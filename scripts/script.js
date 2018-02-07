@@ -239,10 +239,10 @@ function BtnElem() {
   const Button = {
     setup(elemId, func) {
       this.div = document.getElementById(elemId);
-      this.label = this.div.getElementsByClassName("btnLabel")[0];
-      this.btn = this.div.getElementsByClassName("btn")[0];
-      this.slider = this.div.getElementsByClassName("btnSlider")[0];
-      this.ball = this.div.getElementsByClassName("btnBall")[0];
+      this.label = this.div.querySelector(".btnLabel");
+      this.btn = this.div.querySelector(".btn");
+      this.slider = this.div.querySelector(".btnSlider");
+      this.ball = this.div.querySelector(".btnBall");
       this.btn.toggle = 0;
       this.func = func;
       this.btn.addEventListener("click", this.onClick.bind(this));
@@ -278,6 +278,7 @@ function TriStateBtnDelegator() {
         this.slider.className = "btnSlider round enable";
         this.ball.className = "btnBall middle";
         break;
+      // no default
     }
   };
   return Button;
@@ -309,8 +310,8 @@ function dropdownElem() {
   const Dropdown = {
     init(id) {
       this.elem = document.getElementById(id);
-      this.elem.btn = this.elem.getElementsByClassName("dropBtn")[0];
-      this.elem.content = this.elem.getElementsByClassName("dropContent")[0];
+      this.elem.btn = this.elem.querySelector(".dropBtn");
+      this.elem.content = this.elem.querySelector(".dropContent");
       return this;
     },
     append(items) {
@@ -367,9 +368,10 @@ function addDateDropdown() {
   const fragment = document.createDocumentFragment();
   dateArry.forEach((data) => {
     const a = document.createElement("span");
-    a.textContent = data[1]; // text
-    a.dataset.value = data[0]; // value;
-    a.title = data[0]; // tooltip
+    const [value, textContent] = data;
+    a.dataset.value = value; // value;
+    a.title = value; // tooltip
+    a.textContent = textContent; // text
     a.addEventListener("click", setAndStyleAllDates.bind(null, data[0]));
     fragment.appendChild(a);
   });
@@ -391,72 +393,68 @@ function addSeparatorDropdown() {
 // ======================================================================
 
 function triVisibleAction(self) {
-  {
-    replaceClassname(" VisibleHidden");
-    switch (self.btn.toggle) {
-      case -1:
-        self.label.textContent = "Hidden";
-        filterVisible(" VisibleHidden", false);
-        break;
-      case 0:
-        self.label.textContent = "All";
-        break;
-      case 1:
-        self.label.textContent = "Visible";
-        filterVisible(" VisibleHidden", true);
-        break;
-    }
+  replaceClassname(" VisibleHidden");
+  switch (self.btn.toggle) {
+    case -1:
+      self.label.textContent = "Hidden";
+      filterVisible(" VisibleHidden", false);
+      break;
+    case 0:
+      self.label.textContent = "All";
+      break;
+    case 1:
+      self.label.textContent = "Visible";
+      filterVisible(" VisibleHidden", true);
+      break;
+    // no default
   }
 }
 
 function triDigitAction(self) {
-  {
-    replaceClassname(" DigitHidden");
-    switch (self.btn.toggle) {
-      case -1:
-        self.label.textContent = "Off";
-        filterDigit(" DigitHidden", true);
-        filterNullsNoProp(" DigitHidden", "digitSeparator");
-        break;
-      case 0:
-        self.label.textContent = "All";
-        break;
-      case 1:
-        self.label.textContent = "On";
-        filterDigit(" DigitHidden", false);
-        filterNullsNoProp(" DigitHidden", "digitSeparator");
-        break;
-    }
+  replaceClassname(" DigitHidden");
+  switch (self.btn.toggle) {
+    case -1:
+      self.label.textContent = "Off";
+      filterDigit(" DigitHidden", true);
+      filterNullsNoProp(" DigitHidden", "digitSeparator");
+      break;
+    case 0:
+      self.label.textContent = "All";
+      break;
+    case 1:
+      self.label.textContent = "On";
+      filterDigit(" DigitHidden", false);
+      filterNullsNoProp(" DigitHidden", "digitSeparator");
+      break;
+    // no default
   }
 }
 
 function toggleDecimalAction(self) {
-  {
-    replaceClassname(" DecimalHidden");
-    switch (self.btn.toggle) {
-      case 0:
-        self.label.textContent = "All";
-        break;
-      case 1:
-        self.label.textContent = "On";
-        filterNullsNoProp(" DecimalHidden", "places");
-        break;
-    }
+  replaceClassname(" DecimalHidden");
+  switch (self.btn.toggle) {
+    case 0:
+      self.label.textContent = "All";
+      break;
+    case 1:
+      self.label.textContent = "On";
+      filterNullsNoProp(" DecimalHidden", "places");
+      break;
+    // no default
   }
 }
 
 function toggleDateAction(self) {
-  {
-    replaceClassname(" dateHidden");
-    switch (self.btn.toggle) {
-      case 0:
-        self.label.textContent = "All";
-        break;
-      case 1:
-        self.label.textContent = "On";
-        filterNullsNoProp(" dateHidden", "dateFormat");
-        break;
-    }
+  replaceClassname(" dateHidden");
+  switch (self.btn.toggle) {
+    case 0:
+      self.label.textContent = "All";
+      break;
+    case 1:
+      self.label.textContent = "On";
+      filterNullsNoProp(" dateHidden", "dateFormat");
+      break;
+      // no default
   }
 }
 
@@ -465,44 +463,42 @@ function toggleDateAction(self) {
 // ======================================================================
 
 function btnAction(btn, field) {
-  {
-    btn.panel.toggle ^= 1;
-    resetActiveBtn(btn);
-    setBtnIdActive(btn, field);
+  btn.panel.toggle ^= 1;
+  resetActiveBtn(btn);
+  setBtnIdActive(btn, field);
 
-    switch (btn.btnName) {
-      case "Label":
-        showLabel(btn, field);
-        setLabel(field);
-        btnLabelStyle(btn);
-        break;
-      case "Visiblity":
-        setVisiblity(field.obj);
-        btnVisibilityStyle(field, btn);
-        break;
-      case "Seperator":
-        setSeperator(field.obj);
-        btnSeparatorStyle(field, btn);
-        break;
-      case "Date":
-        if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
-          const content = dateContent(field, btn);
-          field.setDropdownContent(content);
-        }
-        dateDropdown(field, btn);
-        btnDateStyle(field, btn);
-        break;
-      case "Digit":
-        if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
-          const content = digitContent(field, btn);
-          field.setDropdownContent(content);
-        }
-        digitDropdown(field, btn);
-        btnDecimStyle(field, btn);
-        break;
-      default:
-        console.log("btnAction case not found: ", btn.btnName);
-    }
+  switch (btn.btnName) {
+    case "Label":
+      showLabel(btn, field);
+      setLabel(field);
+      btnLabelStyle(btn);
+      break;
+    case "Visiblity":
+      setVisiblity(field.obj);
+      btnVisibilityStyle(field, btn);
+      break;
+    case "Seperator":
+      setSeperator(field.obj);
+      btnSeparatorStyle(field, btn);
+      break;
+    case "Date":
+      if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
+        const content = dateContent(field, btn);
+        field.setDropdownContent(content);
+      }
+      dateDropdown(field, btn);
+      btnDateStyle(field, btn);
+      break;
+    case "Digit":
+      if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
+        const content = digitContent(field, btn);
+        field.setDropdownContent(content);
+      }
+      digitDropdown(field, btn);
+      btnDecimStyle(field, btn);
+      break;
+    default:
+      console.log("btnAction case not found: ", btn.btnName);
   }
 }
 
@@ -720,9 +716,10 @@ function dateContent(field, btn) {
   const dateArr = dateArray();
   dateArr.forEach((data) => {
     const a = document.createElement("a");
-    a.textContent = data[1]; // text
-    a.dataset.value = data[0]; // value;
-    a.title = data[0]; // tooltip
+    const [value, textContent] = data;
+    a.dataset.value = value; // value;
+    a.title = value; // tooltip
+    a.textContent = textContent; // text
     a.addEventListener("click", setAndStyleDate.bind(null, field, data[0], btn));
     fragment.appendChild(a);
   });
