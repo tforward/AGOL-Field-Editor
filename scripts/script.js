@@ -1,9 +1,9 @@
 "use strict";
 
 // This JS file:
-//      - Uses the OOLO Design Pattern, see link below for more info:
-//          - https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
-//      - Uses the AirBnb Style Guide ("mostly")
+//  - Uses the AirBnb Style Guide, "mostly"...
+//  - Uses the OOLO Design Pattern, see link below for more info:
+//     - https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
 
 // TODO
 
@@ -32,10 +32,10 @@ function FieldApp() {
 
 function Main() {
   const jsonData = parseJson("textData");
-  const fieldObjects = get_unique_field_objs(jsonData);
+  const fieldObjects = getUniqueFieldObjs(jsonData);
   myApp.init(fieldObjects);
-  myApp.fields = add_fields("content");
-  myApp.fields = add_btns(myApp.fields);
+  myApp.fields = addFields("content");
+  myApp.fields = addBtns(myApp.fields);
 
   // console.log(myApp.fields);
 
@@ -64,20 +64,20 @@ function Main() {
 
 function filterNullsNoProp(propClass, prop) {
   myApp.fields.filter(field => (field.obj.format == null ||
-        !field.obj.format.prototype.hasOwnProperty(prop)))
-    .map(field => field.elem.className += propClass);
+    !Object.prototype.hasOwnProperty.call(field.obj.format, prop)))
+    .forEach(field => field.elem.className += propClass);
 }
 
 function filterVisible(propClass, bool) {
   myApp.fields.filter(field => (field.obj.visible !== bool))
-    .map(i => i.elem.className += propClass);
+    .forEach(i => i.elem.className += propClass);
 }
 
 function filterDigit(propClass, bool) {
   myApp.fields.filter(field => (field.obj.format !== null &&
-        field.obj.format.hasOwnProperty("digitSeparator")))
+    Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")))
     .filter(field => field.obj.format.digitSeparator === bool)
-    .map(field => field.elem.className += propClass);
+    .forEach(field => field.elem.className += propClass);
 }
 
 // ======================================================================
@@ -89,21 +89,21 @@ function parseJson(data) {
   return JSON.parse(textData);
 }
 
-function get_unique_field_objs(jsonData) {
-  const field_names_set = new Set();
-  const field_objs = jsonData.layers
-    .reduce((field_obj, lyr) => {
+function getUniqueFieldObjs(jsonData) {
+  const fieldNamesSet = new Set();
+  const fieldObjs = jsonData.layers
+    .reduce((fieldObj, lyr) => {
       // Gets a unique field object for each field by fieldname
       // fieldName = object
       lyr.popupInfo.fieldInfos.forEach((field) => {
-        if (field_names_set.has(field.fieldName) === false) {
-          field_names_set.add(field.fieldName);
-          field_obj[field.fieldName] = (field);
+        if (fieldNamesSet.has(field.fieldName) === false) {
+          fieldNamesSet.add(field.fieldName);
+          fieldObj[field.fieldName] = (field);
         }
       });
-      return field_obj;
+      return fieldObj;
     }, {});
-  return field_objs;
+  return fieldObjs;
 }
 
 // ======================================================================
@@ -170,7 +170,7 @@ function FieldDelegator() {
     return this;
   };
   field.Btns = function (btn) {
-    this.btns = addBtns(this.btns, btn);
+    this.btns = pushBtns(this.btns, btn);
     return this;
   };
   field.Dropdown = function () {
@@ -319,7 +319,7 @@ function dropdownElem() {
         this.elem.content.appendChild(items);
       } else {
         const fragment = document.createDocumentFragment();
-        items.map(item => fragment.appendChild(item));
+        items.forEach(item => fragment.appendChild(item));
         this.elem.content.appendChild(fragment);
       }
     },
@@ -465,7 +465,6 @@ function toggleDateAction(self) {
 // ======================================================================
 
 function btnAction(btn, field) {
-  // TODO need to build-out redo the filters
   {
     btn.panel.toggle ^= 1;
     resetActiveBtn(btn);
@@ -486,7 +485,7 @@ function btnAction(btn, field) {
         btnSeparatorStyle(field, btn);
         break;
       case "Date":
-        if (field.obj.format !== null && field.obj.format.hasOwnProperty("dateFormat")) {
+        if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
           const content = dateContent(field, btn);
           field.setDropdownContent(content);
         }
@@ -494,7 +493,7 @@ function btnAction(btn, field) {
         btnDateStyle(field, btn);
         break;
       case "Digit":
-        if (field.obj.format !== null && field.obj.format.hasOwnProperty("digitSeparator")) {
+        if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
           const content = digitContent(field, btn);
           field.setDropdownContent(content);
         }
@@ -540,9 +539,9 @@ function resetActiveBtn(currentBtn) {
 }
 
 
-function add_fields(elem_id) {
+function addFields(elemId) {
   // TODO CAN USE FRAGEMENT HERE
-  const parent = document.getElementById(elem_id);
+  const parent = document.getElementById(elemId);
   const fields = [];
 
   myApp.fieldnames.forEach((fieldname) => {
@@ -558,7 +557,7 @@ function add_fields(elem_id) {
   return fields;
 }
 
-function addBtns(btns, btn) {
+function pushBtns(btns, btn) {
   if (btns == null) {
     btns = [];
   }
@@ -566,21 +565,21 @@ function addBtns(btns, btn) {
   return btns;
 }
 
-function add_btns(fields) {
+function addBtns(fields) {
   fields.forEach((field) => {
     let fragment = document.createDocumentFragment();
-    fragment = add_btn(field, "Edit Label", "images/label.png", "Edit Label", "Label", fragment);
-    fragment = add_btn(field, "Visible", "images/light_on.svg", "Visible", "Visiblity", fragment);
-    fragment = add_btn(field, "Separator On", "images/comma_on.png", "Separator On", "Seperator", fragment);
-    fragment = add_btn(field, "Date", "images/date.png", "Date", "Date", fragment);
-    fragment = add_btn(field, "Digit", "images/decimal.png", "Digit", "Digit", fragment);
+    fragment = addBtn(field, "Edit Label", "images/label.png", "Edit Label", "Label", fragment);
+    fragment = addBtn(field, "Visible", "images/light_on.svg", "Visible", "Visiblity", fragment);
+    fragment = addBtn(field, "Separator On", "images/comma_on.png", "Separator On", "Seperator", fragment);
+    fragment = addBtn(field, "Date", "images/date.png", "Date", "Date", fragment);
+    fragment = addBtn(field, "Digit", "images/decimal.png", "Digit", "Digit", fragment);
     field.panel.appendChild(fragment);
     field.Dropdown();
   });
   return fields;
 }
 
-function add_btn(field, title, src, alt, name, fragment) {
+function addBtn(field, title, src, alt, name, fragment) {
   const btn = Object.create(BtnDelegator());
   const img = Object.create(ImageDelegator());
 
@@ -632,11 +631,13 @@ function btnLabelStyle(btn) {
 
   if (btn.toggle === 0) {
     imgNode.src = "images/label.png";
-    imgNode.alt, imgNode.title = "Edit Label";
+    imgNode.alt = "Edit Label";
+    imgNode.title = "Edit Label";
     imgNode.className = null;
   } else {
     imgNode.src = "images/set_label.png";
-    imgNode.alt, imgNode.title = "Set Label";
+    imgNode.alt = "Set Label";
+    imgNode.title = "Set Label";
   }
 }
 
@@ -677,12 +678,14 @@ function btnVisibilityStyle(field, elem) {
 function btnSeparatorStyle(field, btn) {
   const imgNode = btn.firstElementChild;
 
-  if (field.obj.format !== null && field.obj.format.hasOwnProperty("digitSeparator")) {
+  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
     imgNode.src = field.obj.format.digitSeparator === false ? "images/comma_off.png" : "images/comma_on.png";
-    imgNode.alt, imgNode.title = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
+    imgNode.alt = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
+    imgNode.title = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
   } else {
     imgNode.src = "images/comma_na.png";
-    imgNode.alt, imgNode.title = "N/A";
+    imgNode.alt = "N/A";
+    imgNode.title = "N/A";
     imgNode.className = "notApplicable";
   }
 }
@@ -694,19 +697,19 @@ function btnSeparatorStyle(field, btn) {
 function dateArray() {
   return [
     ["year", "1997"],
-    ["shortMonthYear",	"Dec 1997"],
-    ["longMonthYear",	"December 1997"],
+    ["shortMonthYear", "Dec 1997"],
+    ["longMonthYear", "December 1997"],
     ["shortDate", "12/21/1997"],
     ["shortDateLE", "21/12/1997"],
     ["dayShortMonthYear", "21 Dec 1997"],
     ["longMonthDayYear", "December 21,1997"],
-    ["longDate",	"Sunday, December 21, 1997"],
-    ["shortDateShortTime",	"12/21/1997 6:00 PM"],
-    ["shortDateLEShortTime",	"21/12/1997 6:00 PM"],
+    ["longDate", "Sunday, December 21, 1997"],
+    ["shortDateShortTime", "12/21/1997 6:00 PM"],
+    ["shortDateLEShortTime", "21/12/1997 6:00 PM"],
     ["shortDateLongTime", "12/21/1997 6:00:00 PM"],
-    ["shortDateLELongTime",	"21/12/1997 6:00:00 PM"],
-    ["shortDateShortTime24",	"12/21/1997 18:00"],
-    ["shortDateLEShortTime24",	"21/12/1997 18:00"],
+    ["shortDateLELongTime", "21/12/1997 6:00:00 PM"],
+    ["shortDateShortTime24", "12/21/1997 18:00"],
+    ["shortDateLEShortTime24", "21/12/1997 18:00"],
   ];
 }
 
@@ -714,8 +717,8 @@ function dateContent(field, btn) {
   const content = document.createElement("div");
   const fragment = document.createDocumentFragment();
   content.className = "dropdown-contentDate";
-  const date_arr = dateArray();
-  date_arr.forEach((data) => {
+  const dateArr = dateArray();
+  dateArr.forEach((data) => {
     const a = document.createElement("a");
     a.textContent = data[1]; // text
     a.dataset.value = data[0]; // value;
@@ -729,13 +732,13 @@ function dateContent(field, btn) {
 
 function dateDropdown(field, elem) {
   // console.log(elem.toggle)
-  if (field.obj.format !== null && field.obj.format.hasOwnProperty("dateFormat")) {
+  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
     if (elem.toggle === 1) {
       field.dropdown.className = "dropdown";
 
       const anchors = field.dropdown.getElementsByTagName("a");
-      const date_type = field.obj.format.dateFormat;
-      const index = find_attribute_value(anchors, date_type);
+      const dateType = field.obj.format.dateFormat;
+      const index = findAttributeValue(anchors, dateType);
       anchors[index].id = "date_selected";
     } else {
       field.dropdown.className = "hidden";
@@ -752,19 +755,22 @@ function btnDateStyle(field, elem) {
     "shortDateLEShortTime", "shortDateShortTime24", "shortDateLEShortTime24",
     "shortDateShortTime24", "shortDateLEShortTime24"];
 
-  if (field.obj.format !== null && field.obj.format.hasOwnProperty("dateFormat")) {
+  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
     const d = field.obj.format.dateFormat;
 
     if (dateTime.indexOf(d) > -1) {
       imgNode.src = "images/dateTime.png";
-      imgNode.alt, imgNode.title = d;
+      imgNode.alt = d;
+      imgNode.title = d;
     } else if (date.indexOf(d) > -1) {
       imgNode.src = "images/date.png";
-      imgNode.alt, imgNode.title = d;
+      imgNode.alt = d;
+      imgNode.title = d;
     }
   } else {
     imgNode.src = "images/date_na.png";
-    imgNode.alt, imgNode.title = "N/A";
+    imgNode.alt = "N/A";
+    imgNode.title = "N/A";
     imgNode.className = "notApplicable";
   }
 }
@@ -778,8 +784,8 @@ function setAndStyleDate(field, dateType, btn) {
 
 function setAndStyleAllDates(dateType) {
   myApp.fields.filter(field => (field.obj.format != null &&
-        field.obj.format.hasOwnProperty("dateFormat")))
-    .map(field => (field.obj.format.dateFormat = dateType));
+    Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")))
+    .forEach(field => (field.obj.format.dateFormat = dateType));
   // TODO
   applyBtnDefaults(myApp.fields);
   // and/or some aleart to say date changed
@@ -791,13 +797,13 @@ function setAndStyleAllDates(dateType) {
 // ======================================================================
 
 function digitContent(field, parentbtn) {
-  const content_div = document.createElement("div");
+  const contentDiv = document.createElement("div");
   const pTag = document.createElement("p");
   const fragment = document.createDocumentFragment();
   const input = document.createElement("input");
   const btn = document.createElement("btn");
 
-  content_div.className = "dropdown-contentDigit";
+  contentDiv.className = "dropdown-contentDigit";
   pTag.innerText = "Decimals: ";
 
   input.type = "number";
@@ -813,12 +819,12 @@ function digitContent(field, parentbtn) {
   fragment.appendChild(input);
   fragment.appendChild(btn);
 
-  content_div.appendChild(fragment);
-  return content_div;
+  contentDiv.appendChild(fragment);
+  return contentDiv;
 }
 
 function digitDropdown(field, btn) {
-  if (field.obj.format !== null && field.obj.format.hasOwnProperty("digitSeparator")) {
+  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
     if (btn.toggle === 1) {
       field.dropdown.className = "dropdown";
     } else {
@@ -829,13 +835,15 @@ function digitDropdown(field, btn) {
 
 function btnDecimStyle(field, elem) {
   const imgNode = elem.firstElementChild;
-  if (field.obj.format !== null && field.obj.format.hasOwnProperty("places")) {
+  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "places")) {
     const decimals = field.obj.format.places;
     imgNode.src = "images/decimal.png";
-    imgNode.alt, imgNode.title = `Has ${decimals} Decimal(s)`;
+    imgNode.alt = `Has ${decimals} Decimal(s)`;
+    imgNode.title = `Has ${decimals} Decimal(s)`;
   } else {
     imgNode.src = "images/na.png";
-    imgNode.alt, imgNode.title = "N/A";
+    imgNode.alt = "N/A";
+    imgNode.title = "N/A";
     imgNode.className = "notApplicable";
   }
 }
@@ -850,7 +858,7 @@ function digitSetBtn(field, input, parentbtn) {
 
 function applyBtnDefaults(fields) {
   fields.forEach((field) => {
-    field.btns.map(btn => btnTypeSorter(field, btn));
+    field.btns.forEach(btn => btnTypeSorter(field, btn));
   });
 }
 
@@ -885,7 +893,7 @@ function setVisiblity(fieldObj) {
 }
 
 function setSeperator(fieldObj) {
-  if (fieldObj.format !== null && fieldObj.format.hasOwnProperty("digitSeparator")) {
+  if (fieldObj.format !== null && Object.prototype.hasOwnProperty.call(fieldObj.format, "digitSeparator")) {
     fieldObj.format.digitSeparator = !fieldObj.format.digitSeparator;
   }
 }
@@ -903,10 +911,10 @@ function setDigit(fieldObj, value) {
 //  Utility Functions
 // ======================================================================
 
-function find_attribute_value(collection, attr_value) {
+function findAttributeValue(collection, attrValue) {
   // Returns the index position of the first element that is a match within parent element
   for (let i = 0; i < collection.length; i++) {
-    if (collection[i].dataset.value === attr_value) {
+    if (collection[i].dataset.value === attrValue) {
       return i;
     }
   }
@@ -914,42 +922,51 @@ function find_attribute_value(collection, attr_value) {
   return -1;
 }
 
-function toTitleCase(field) {
-  myApp.fields.map(field => (field.obj.label = field.obj.label
-    .replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase()
-             + txt.substr(1).toLowerCase()),
-    field.label.textContent = field.obj.label));
+function toTitleCase() {
+  myApp.fields.forEach((field) => {
+    field.obj.label = field.obj.label.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase()
+      + txt.substr(1).toLowerCase());
+    field.label.textContent = field.obj.label;
+  });
 }
 
 function toLower() {
-  myApp.fields.map(field => (field.obj.label = field.obj.label.toLowerCase(),
-    field.label.textContent = field.obj.label));
+  myApp.fields.forEach((field) => {
+    field.obj.label = field.obj.label.toLowerCase();
+    field.label.textContent = field.obj.label;
+  });
 }
 
-function toUpper(field) {
-  myApp.fields.map(field => (field.obj.label = field.obj.label.toUpperCase(),
-    field.label.textContent = field.obj.label));
+function toUpper() {
+  myApp.fields.forEach((field) => {
+    field.obj.label = field.obj.label.toUpperCase();
+    field.label.textContent = field.obj.label;
+  });
 }
 
-function toFieldname(field) {
-  myApp.fields.map(field => (field.obj.label = field.fieldname,
-    field.label.textContent = field.obj.label));
+function toFieldname() {
+  myApp.fields.forEach((field) => {
+    field.obj.label = field.fieldname;
+    field.label.textContent = field.obj.label;
+  });
 }
 
-function toDefault(field) {
-  myApp.fields.map(field => (field.obj.label = field.label.default,
-    field.label.textContent = field.obj.label));
+function toDefault() {
+  myApp.fields.forEach((field) => {
+    field.obj.label = field.label.default;
+    field.label.textContent = field.obj.label;
+  });
 }
 
 function setAllSeperators(name, boolean) {
   myApp.fields.filter(field => (field.obj.format != null &&
-        field.obj.format.hasOwnProperty("digitSeparator")))
-    .map(field => (field.obj.format.digitSeparator = boolean));
+    Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")))
+    .forEach(field => (field.obj.format.digitSeparator = boolean));
   applyBtnDefaults(myApp.fields);
 }
 
 function replaceClassname(propClass) {
-  myApp.fields.map(i => i.elem.className =
+  myApp.fields.forEach(i => i.elem.className =
         i.elem.className.replace(propClass, ""));
 }
 
@@ -957,7 +974,7 @@ function replaceClassname(propClass) {
 //  On-Load Handle
 // ======================================================================
 
-function initApplication(readyState) {
+function initApplication() {
   Main();
 }
 
