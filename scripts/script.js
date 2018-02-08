@@ -1,11 +1,9 @@
 "use strict";
 
 // This JS file:
-//  - Uses the AirBnb Style Guide, "mostly"...
+//  - Uses the AirBnb Style Guide "mostly"...
 //  - Uses the OOLO Design Pattern, see link below for more info:
 //     - https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
-
-// TODO
 
 const myApp = FieldApp();
 
@@ -54,6 +52,7 @@ function Main() {
   toggleDate.setup("toggleDate", toggleDateAction);
 
   addLabelDropdown();
+  addVisibilityDropdown();
   addDateDropdown();
   addSeparatorDropdown();
 }
@@ -359,6 +358,15 @@ function addLabelDropdown() {
   labelDrop.append([item1, item2, item3, item4, item5]);
 }
 
+function addVisibilityDropdown() {
+  const dropdown = dropdownDelegator();
+  dropdown.init("visibilityDrop");
+  dropdown.name("Visibility");
+  const item1 = dropdown.addItem("span", "Visibility Off", setAllVisible, false);
+  const item2 = dropdown.addItem("span", "Visibility On", setAllVisible, true);
+  dropdown.append([item1, item2]);
+}
+
 function addDateDropdown() {
   const dateDrop = dropdownDelegator();
   dateDrop.init("dateDrop");
@@ -543,7 +551,6 @@ function addFields(elemId) {
     const field = Object.create(FieldDelegator());
     field.setup(fieldname);
     field.obj = myApp.fieldObjects[fieldname];
-    // field.elem.innerHTML = "<label class='lbl_class'>" + field.obj.label + "</label>";
     field.CreateLabel();
     field.addTo(parent);
     field.Panel();
@@ -957,6 +964,11 @@ function setAllSeperators(name, boolean) {
   myApp.fields.filter(field => (field.obj.format != null &&
     Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")))
     .forEach(field => (field.obj.format.digitSeparator = boolean));
+  applyBtnDefaults(myApp.fields);
+}
+
+function setAllVisible(name, boolean) {
+  myApp.fields.forEach(field => (field.obj.visible = boolean));
   applyBtnDefaults(myApp.fields);
 }
 

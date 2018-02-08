@@ -15,9 +15,8 @@
     <div id="header">
         <h2>ArcGIS Online Field Editor</h2>
 
-        <h3>Filters</h3>
+        <h4>Filters</h4>
         <div class="row">
-
           <div id="triState" class="btnHolder">
             <label class="center">Show</label>
               <div class="center">
@@ -71,9 +70,14 @@
             </div>
 
         </div>
-
+        <h4>Set All</h4>
         <div id="labelDrop" class="dropdown">
           <button class="dropBtn">Labels</button>
+          <div class="dropContent"></div>
+        </div>
+
+        <div id="visibilityDrop" class="dropdown">
+          <button class="dropBtn">Visibility</button>
           <div class="dropContent"></div>
         </div>
 
@@ -87,25 +91,12 @@
           <div class="dropContent"></div>
         </div>
         
-        <div>
-          <select id="selection_dropdown">
-            <option value="none" selected></option>
-            <option value="all_on">Set all On</option>
-            <option value="all_off">Set all Off</option>
-            <option value="all_invert">Invert Selection</option>
-          </select>
-        </div>
-        
-
     </div>
       <!== Generated Content from JS goes here ==!>
       <div class="aligner" id="content">
-
-
       </div>
     </div> 
-  </div> 
-
+  </div>
       
   <textarea rows="16" cols="50" id="textData">
     {
