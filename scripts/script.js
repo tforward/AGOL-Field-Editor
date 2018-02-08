@@ -127,18 +127,18 @@ function Widget() {
 function FieldDelegator() {
   const field = Object.create(Widget());
 
-  field.setup = function (fieldname) {
+  field.setup = function setup(fieldname) {
     this.init(fieldname, document.createElement("div"));
     this.elem.className = "aligner-field";
     this.obj = null;
     return this;
   };
-  field.define = function () {
+  field.define = function define() {
     this.elem.innerHTML = null;
     this.activeBtn = null;
     return this;
   };
-  field.CreateLabel = function () {
+  field.CreateLabel = function CreateLabel() {
     this.labelDiv = document.createElement("div");
     this.labelDiv.className = "field";
     this.label = document.createElement("label");
@@ -150,7 +150,7 @@ function FieldDelegator() {
     this.elem.appendChild(this.labelDiv);
     return this;
   };
-  field.CreateInput = function () {
+  field.CreateInput = function CreateInput() {
     this.input = document.createElement("input");
     this.input.type = "text";
     this.input.id = "active_text_input";
@@ -161,7 +161,7 @@ function FieldDelegator() {
     this.labelDiv.appendChild(this.input);
     return this;
   };
-  field.Panel = function () {
+  field.Panel = function Panel() {
     this.panel = document.createElement("div");
     this.panel.className = "btn_panel";
     this.panel.id = null;
@@ -169,11 +169,11 @@ function FieldDelegator() {
     this.elem.appendChild(this.panel);
     return this;
   };
-  field.Btns = function (btn) {
+  field.Btns = function Btns(btn) {
     this.btns = pushBtns(this.btns, btn);
     return this;
   };
-  field.Dropdown = function () {
+  field.Dropdown = function Dropdown() {
     this.dropdown = document.createElement("div");
     this.dropdown.className = "dropdown";
     this.content = document.createElement("div");
@@ -183,7 +183,7 @@ function FieldDelegator() {
     this.panel.appendChild(this.dropdown);
     return this;
   };
-  field.setDropdownContent = function (contents) {
+  field.setDropdownContent = function setDropdownContent(contents) {
     // REWORK? It maybe better to add elem once than just display:none?
     while (this.content.firstChild) {
       this.content.removeChild(this.content.firstChild);
@@ -198,12 +198,12 @@ function FieldDelegator() {
 function BtnDelegator() {
   const Button = Object.create(Widget());
 
-  Button.setup = function (field) {
+  Button.setup = function setup(field) {
     this.init(field.fieldname, document.createElement("btn"));
     this.elem.addEventListener("click", this.onClick.bind(this, field));
     return this;
   };
-  Button.define = function () {
+  Button.define = function define() {
     this.elem.toggle = 0;
     this.elem.value = null;
     this.elem.className = null;
@@ -211,7 +211,7 @@ function BtnDelegator() {
     this.elem.panel = null;
     this.elem.dropdown = null;
   };
-  Button.onClick = function (field) {
+  Button.onClick = function onClick(field) {
     this.elem.toggle ^= 1;
     btnAction(this.elem, field);
   };
@@ -221,13 +221,13 @@ function BtnDelegator() {
 function ImageDelegator() {
   const Image = Object.create(Widget());
 
-  Image.setup = function (fieldname) {
+  Image.setup = function setup(fieldname) {
     this.init(fieldname, document.createElement("img"));
     this.elem.width = 20;
     this.elem.height = 20;
     return this;
   };
-  Image.define = function () {
+  Image.define = function define() {
     this.elem.src = "#";
     this.elem.alt = null;
     this.elem.title = null;
@@ -255,7 +255,7 @@ function BtnElem() {
 function TriStateBtnDelegator() {
   const Button = Object.create(BtnElem());
 
-  Button.onClick = function () {
+  Button.onClick = function onClick() {
     if (this.btn.toggle >= 1) {
       this.btn.toggle = -1;
     } else {
@@ -264,7 +264,7 @@ function TriStateBtnDelegator() {
     this.style();
     this.func(this);
   };
-  Button.style = function () {
+  Button.style = function style() {
     switch (this.btn.toggle) {
       case -1:
         this.slider.className = "btnSlider round disable";
@@ -287,7 +287,7 @@ function TriStateBtnDelegator() {
 function ToggleBtnDelegator() {
   const Button = Object.create(BtnElem());
 
-  Button.onClick = function () {
+  Button.onClick = function onClick() {
     if (this.btn.toggle === 1) {
       this.btn.toggle = 0;
       this.slider.className = "btnSlider round";
@@ -331,17 +331,17 @@ function dropdownElem() {
 function dropdownDelegator() {
   const Dropdown = Object.create(dropdownElem());
 
-  Dropdown.name = function (name) {
-    this.elem.btn.textContent = name;
+  Dropdown.name = function name(dropName) {
+    this.elem.btn.textContent = dropName;
   };
-  Dropdown.addItem = function (type, name, func, ...args) {
+  Dropdown.addItem = function addItem(type, name, func, ...args) {
     this.item = document.createElement(type);
     this.item.textContent = name;
     this.item.addEventListener("click", func.bind(this, name, ...args));
     return this.item;
   };
-  Dropdown.action = function (action) {
-    this.action = action;
+  Dropdown.action = function action(takeAction) {
+    this.action = takeAction;
   };
   return Dropdown;
 }
@@ -497,8 +497,7 @@ function btnAction(btn, field) {
       digitDropdown(field, btn);
       btnDecimStyle(field, btn);
       break;
-    default:
-      console.log("btnAction case not found: ", btn.btnName);
+     // no default
   }
 }
 
@@ -876,8 +875,7 @@ function btnTypeSorter(field, btn) {
     case "Digit":
       btnDecimStyle(field, btn.elem);
       break;
-    default:
-      console.log("Button type $(btn.elem.className) not found.");
+    // no default
   }
 }
 
@@ -976,8 +974,12 @@ function initApplication() {
 }
 
 // Handler when the DOM is fully loaded
-document.onreadystatechange = function () {
-  document.readyState === "complete" ? initApplication(document.readyState) : console.log("Loading...");
+document.onreadystatechange = function onreadystatechange() {
+  if (document.readyState === "complete") {
+    initApplication(document.readyState);
+  } else {
+    // Do something during loading [opitional]
+  }
 };
 
 // ======================================================================
