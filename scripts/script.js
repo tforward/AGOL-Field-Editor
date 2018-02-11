@@ -39,6 +39,9 @@ function Main() {
 
   applyBtnDefaults(myApp.fields);
 
+  //loadFile();
+  saveFile();
+
   const triState = Object.create(TriStateBtnDelegator());
   triState.setup("triState", triVisibleAction);
 
@@ -55,6 +58,7 @@ function Main() {
   addVisibilityDropdown();
   addDateDropdown();
   addSeparatorDropdown();
+  addDigitDropdown();
 }
 
 // ======================================================================
@@ -395,6 +399,14 @@ function addSeparatorDropdown() {
   dropdown.append([item1, item2]);
 }
 
+function addDigitDropdown() {
+  const dropdown = dropdownDelegator();
+  dropdown.init("digitDrop");
+  dropdown.name("Digits");
+  const item1 = digitContentAll(setAllDigits);
+  dropdown.append([item1]);
+}
+
 
 // ======================================================================
 // Filter Buttons
@@ -499,7 +511,7 @@ function btnAction(btn, field) {
       break;
     case "Digit":
       if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
-        const content = digitContent(field, btn);
+        const content = digitContent(field, btn, digitSetBtn);
         field.setDropdownContent(content);
       }
       digitDropdown(field, btn);
@@ -799,7 +811,35 @@ function setAndStyleAllDates(dateType) {
 //  Digit Button
 // ======================================================================
 
-function digitContent(field, parentbtn) {
+function digitContentAll(func) {
+  const contentDiv = document.createElement("div");
+  const pTag = document.createElement("p");
+  const fragment = document.createDocumentFragment();
+  const input = document.createElement("input");
+  const btn = document.createElement("btn");
+
+  contentDiv.className = "dropdown-contentDigitAll";
+  pTag.innerText = "Decimals: ";
+
+  input.type = "number";
+  input.className = "smInput";
+  input.autofocus = "autofocus";
+  input.value = 0;
+
+  btn.innerText = "Set";
+  btn.className = "button center";
+  btn.addEventListener("click", func.bind(null, input));
+
+  fragment.appendChild(pTag);
+  fragment.appendChild(input);
+  fragment.appendChild(btn);
+
+  contentDiv.appendChild(fragment);
+  return contentDiv;
+}
+
+
+function digitContent(field, parentbtn, func) {
   const contentDiv = document.createElement("div");
   const pTag = document.createElement("p");
   const fragment = document.createDocumentFragment();
@@ -816,7 +856,7 @@ function digitContent(field, parentbtn) {
 
   btn.innerText = "Set";
   btn.className = "button center";
-  btn.addEventListener("click", digitSetBtn.bind(null, field, input, parentbtn));
+  btn.addEventListener("click", func.bind(null, field, input, parentbtn));
 
   fragment.appendChild(pTag);
   fragment.appendChild(input);
@@ -913,6 +953,36 @@ function setDigit(fieldObj, value) {
 //  Utility Functions
 // ======================================================================
 
+function saveFile() {
+  //const blob = new Blob(["Hello, world!"], { type: "text/plain;charset=utf-8" });
+  //saveAs(blob, "hello world.txt");
+
+  //https://stackoverflow.com/questions/21997057/how-to-use-filesaver-js
+}
+
+// function loadFile() {
+//   const fileInput = document.getElementById("fileInput");
+//   const fileDisplayArea = document.getElementById("fileDisplayArea");
+
+//   fileInput.addEventListener("change", loadJSONFile());
+
+//   function loadJSONFile() {
+//     const file = fileInput.files[0];
+//     const textType = /text.*/;
+
+//     if (file.type.match(textType)) {
+//       const reader = new FileReader();
+
+//       reader.onload = function loadintoDisplay() {
+//         fileDisplayArea.innerText = reader.result;
+//       };
+//       reader.readAsText(file);
+//     } else {
+//       fileDisplayArea.innerText = "File not supported!";
+//     }
+//   }
+// }
+
 function findAttributeValue(collection, attrValue) {
   // Returns the index position of the first element that is a match within parent element
   for (let i = 0; i < collection.length; i++) {
@@ -964,6 +1034,13 @@ function setAllSeperators(name, boolean) {
   myApp.fields.filter(field => (field.obj.format != null &&
     Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")))
     .forEach(field => (field.obj.format.digitSeparator = boolean));
+  applyBtnDefaults(myApp.fields);
+}
+
+function setAllDigits(input) {
+  myApp.fields.filter(field => (field.obj.format != null &&
+    Object.prototype.hasOwnProperty.call(field.obj.format, "places")))
+    .forEach(field => (field.obj.format.places = input.value));
   applyBtnDefaults(myApp.fields);
 }
 
