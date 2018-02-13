@@ -40,8 +40,10 @@ function Main() {
 
   applyBtnDefaults(myApp.fields);
 
-  //loadFile();
-  saveFile();
+  loadFile();
+  //saveFile("arcFields", JSON.stringify(myApp.fields));
+
+  console.log(myApp.fields)
 
   const triState = Object.create(TriStateBtnDelegator());
   triState.setup("triState", triVisibleAction);
@@ -954,35 +956,33 @@ function setDigit(fieldObj, value) {
 //  Utility Functions
 // ======================================================================
 
-function saveFile() {
-  const file = new File(["Hello, world!"], "hello world.txt", { type: "text/plain;charset=utf-8" });
+function saveFile(fileName, data) {
+  const file = new File([data], `${fileName}.json`, { type: "text/plain;charset=utf-8" });
   saveAs(file);
-
-  // https://stackoverflow.com/questions/21997057/how-to-use-filesaver-js
 }
 
-// function loadFile() {
-//   const fileInput = document.getElementById("fileInput");
-//   const fileDisplayArea = document.getElementById("fileDisplayArea");
+function loadFile() {
+  const fileInput = document.getElementById("fileInput");
+  const fileDisplayArea = document.getElementById("fileDisplayArea");
 
-//   fileInput.addEventListener("change", loadJSONFile());
+  fileInput.addEventListener("change", loadJSONFile);
 
-//   function loadJSONFile() {
-//     const file = fileInput.files[0];
-//     const textType = /text.*/;
+  function loadJSONFile() {
+    const file = fileInput.files[0];
+    const textType = /text.*/;
 
-//     if (file.type.match(textType)) {
-//       const reader = new FileReader();
+    if (file.type.match(textType)) {
+      const reader = new FileReader();
 
-//       reader.onload = function loadintoDisplay() {
-//         fileDisplayArea.innerText = reader.result;
-//       };
-//       reader.readAsText(file);
-//     } else {
-//       fileDisplayArea.innerText = "File not supported!";
-//     }
-//   }
-// }
+      reader.onload = function loadintoDisplay() {
+        fileDisplayArea.innerText = reader.result;
+      };
+      reader.readAsText(file);
+    } else {
+      fileDisplayArea.innerText = "File not supported!";
+    }
+  }
+}
 
 function findAttributeValue(collection, attrValue) {
   // Returns the index position of the first element that is a match within parent element
@@ -1068,15 +1068,11 @@ function replaceClassname(propClass) {
  * License: MIT
  *   See https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
  */
-
-/*global self */
-/*jslint bitwise: true, indent: 4, laxbreak: true, laxcomma: true, smarttabs: true, plusplus: true */
-
 /*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
 
 
 var saveAs = saveAs || (function(view) {
-	"use strict";
+
 	// IE <10 is explicitly unsupported
 	if (typeof view === "undefined" || typeof navigator !== "undefined" && /MSIE [1-9]\./.test(navigator.userAgent)) {
 		return;
@@ -1237,17 +1233,6 @@ var saveAs = saveAs || (function(view) {
 	|| typeof window !== "undefined" && window
 	|| this.content
 ));
-// `self` is undefined in Firefox for Android content script context
-// while `this` is nsIContentFrameMessageManager
-// with an attribute `content` that corresponds to the window
-
-if (typeof module !== "undefined" && module.exports) {
-  module.exports.saveAs = saveAs;
-} else if ((typeof define !== "undefined" && define !== null) && (define.amd !== null)) {
-  define("FileSaver.js", function() {
-    return saveAs;
-  });
-}
 
 
 // ======================================================================
