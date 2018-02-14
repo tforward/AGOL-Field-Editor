@@ -30,20 +30,17 @@ function FieldApp() {
 // ======================================================================
 
 function Main() {
-  const jsonData = parseJson("textData");
-  const fieldObjects = getUniqueFieldObjs(jsonData);
+  myApp.jsonData = parseJson("textData");
+  const fieldObjects = getUniqueFieldObjs(myApp.jsonData);
   myApp.init(fieldObjects);
   myApp.fields = addFields("content");
   myApp.fields = addBtns(myApp.fields);
 
-  // console.log(myApp.fields);
-
   applyBtnDefaults(myApp.fields);
 
-  loadFile();
-  //saveFile("arcFields", JSON.stringify(myApp.fields));
+  //loadFile();
 
-  console.log(myApp.fields)
+  
 
   const triState = Object.create(TriStateBtnDelegator());
   triState.setup("triState", triVisibleAction);
@@ -62,11 +59,40 @@ function Main() {
   addDateDropdown();
   addSeparatorDropdown();
   addDigitDropdown();
+  saveFileBtn("data");
 }
 
 // ======================================================================
 // Filters
 // ======================================================================
+
+function processData(jsonData) {
+  const reduceFields = reduceFieldObjs();
+  const processedJson = reassignFieldProps(jsonData, reduceFields);
+  return JSON.stringify(processedJson);
+}
+
+function reassignFieldProps(jsonData, reduceFields) {
+  jsonData.layers.forEach((lyr) => {
+    lyr.popupInfo.fieldInfos.forEach((field) => {
+      const processed = reduceFields[field.fieldName];
+      field.format = processed.format;
+      field.label = processed.label;
+      field.tooltip = processed.tooltip;
+      field.visible = processed.visible;
+    });
+  });
+  return jsonData;
+}
+
+function reduceFieldObjs() {
+  const fieldObjs = myApp.fields
+    .reduce((fieldObj, field) => {
+      fieldObj[field.obj.fieldName] = (field.obj);
+      return fieldObj;
+    }, {});
+  return fieldObjs;
+}
 
 function filterNullsNoProp(propClass, prop) {
   myApp.fields.filter(field => (field.obj.format == null ||
@@ -956,8 +982,14 @@ function setDigit(fieldObj, value) {
 //  Utility Functions
 // ======================================================================
 
-function saveFile(fileName, data) {
-  const file = new File([data], `${fileName}.json`, { type: "text/plain;charset=utf-8" });
+function saveFileBtn(fileName) {
+  const saveBtn = document.getElementById("btnSave");
+  saveBtn.addEventListener("click", saveFile.bind(null, fileName));
+}
+
+function saveFile(fileName) {
+  const jsonData = processData(myApp.jsonData);
+  const file = new File([jsonData], `${fileName}.json`, { type: "text/plain;charset=utf-8" });
   saveAs(file);
 }
 
