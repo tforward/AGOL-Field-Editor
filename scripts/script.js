@@ -59,8 +59,6 @@ function Main() {
   addSeparatorDropdown();
   addDigitDropdown();
   saveFileBtn("data");
-
-  filterHiddenFields();
 }
 
 // ======================================================================
@@ -69,8 +67,6 @@ function Main() {
 
 function filterHiddenFields() {
   const hiddenValues = ["VisibleHidden", "DigitHidden", "dateHidden", "hidden"];
-  // const filtered = myApp.fields.map(lyr => hiddenValues
-  //   .filter(field => (lyr.elem.className.indexOf(field) !== -1)));
 
   function isHidden(lyrClass) {
     return hiddenValues.filter(field => (lyrClass.indexOf(field) !== -1));
@@ -78,17 +74,12 @@ function filterHiddenFields() {
 
   function filterHidden(lyr) {
     const hidden = isHidden(lyr.elem.className);
-    console.log(hidden);
-    console.log("test1");
-    if (hidden == true) {
-      console.log("tests");
+    if (hidden.length !== 0) {
+      return lyr.fieldname;
     }
   }
-
   const filtered = myApp.fields.map(lyr => filterHidden(lyr));
-
-
-  console.log(filtered);
+  return filtered;
 }
 
 function processData(jsonData) {
@@ -186,7 +177,7 @@ function FieldDelegator() {
 
   field.setup = function setup(fieldname) {
     this.init(fieldname, document.createElement("div"));
-    this.elem.className = "aligner-field hidden";
+    this.elem.className = "aligner-field";
     this.obj = null;
     return this;
   };
@@ -1053,57 +1044,73 @@ function findAttributeValue(collection, attrValue) {
 }
 
 function toTitleCase() {
-  myApp.fields.forEach((field) => {
-    field.obj.label = field.obj.label.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase()
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .forEach((field) => {
+      field.obj.label = field.obj.label.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase()
       + txt.substr(1).toLowerCase());
-    field.label.textContent = field.obj.label;
-  });
+      field.label.textContent = field.obj.label;
+    });
 }
 
 function toLower() {
-  myApp.fields.forEach((field) => {
-    field.obj.label = field.obj.label.toLowerCase();
-    field.label.textContent = field.obj.label;
-  });
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .forEach((field) => {
+      field.obj.label = field.obj.label.toLowerCase();
+      field.label.textContent = field.obj.label;
+    });
 }
 
 function toUpper() {
-  myApp.fields.forEach((field) => {
-    field.obj.label = field.obj.label.toUpperCase();
-    field.label.textContent = field.obj.label;
-  });
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .forEach((field) => {
+      field.obj.label = field.obj.label.toUpperCase();
+      field.label.textContent = field.obj.label;
+    });
 }
 
 function toFieldname() {
-  myApp.fields.forEach((field) => {
-    field.obj.label = field.fieldname;
-    field.label.textContent = field.obj.label;
-  });
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .forEach((field) => {
+      field.obj.label = field.fieldname;
+      field.label.textContent = field.obj.label;
+    });
 }
 
 function toDefault() {
-  myApp.fields.forEach((field) => {
-    field.obj.label = field.label.default;
-    field.label.textContent = field.obj.label;
-  });
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .forEach((field) => {
+      field.obj.label = field.label.default;
+      field.label.textContent = field.obj.label;
+    });
 }
 
 function setAllSeperators(name, boolean) {
-  myApp.fields.filter(field => (field.obj.format != null &&
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .filter(field => (field.obj.format != null &&
     Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")))
     .forEach(field => (field.obj.format.digitSeparator = boolean));
   applyBtnDefaults(myApp.fields);
 }
 
 function setAllDigits(input) {
-  myApp.fields.filter(field => (field.obj.format != null &&
-    Object.prototype.hasOwnProperty.call(field.obj.format, "places")))
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .filter(field => (field.obj.format != null &&
+      Object.prototype.hasOwnProperty.call(field.obj.format, "places")))
     .forEach(field => (field.obj.format.places = input.value));
   applyBtnDefaults(myApp.fields);
 }
 
 function setAllVisible(name, boolean) {
-  myApp.fields.forEach(field => (field.obj.visible = boolean));
+  const filtered = filterHiddenFields();
+  myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
+    .forEach(field => field.obj.visible = boolean);
   applyBtnDefaults(myApp.fields);
 }
 
