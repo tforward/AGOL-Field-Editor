@@ -30,17 +30,7 @@ function FieldApp() {
 // ======================================================================
 
 function Main() {
-  myApp.jsonData = parseJson("textData");
-  const fieldObjects = getUniqueFieldObjs(myApp.jsonData);
-  myApp.init(fieldObjects);
-  myApp.fields = addFields("content");
-  myApp.fields = addBtns(myApp.fields);
-
-  applyBtnDefaults(myApp.fields);
-
-  // loadFile();
-
-
+  init();
   const triState = Object.create(TriStateBtnDelegator());
   triState.setup("triState", triVisibleAction);
 
@@ -53,17 +43,37 @@ function Main() {
   const toggleDate = Object.create(ToggleBtnDelegator());
   toggleDate.setup("toggleDate", toggleDateAction);
 
+  loadFile();
   addLabelDropdown();
   addVisibilityDropdown();
   addDateDropdown();
   addSeparatorDropdown();
   addDigitDropdown();
   saveFileBtn("data");
+
+  
 }
 
 // ======================================================================
 // Filters
 // ======================================================================
+
+function delContent(id) {
+  const content = document.getElementById(id);
+
+  while (content.firstChild) {
+    content.removeChild(content.firstChild);
+  }
+}
+
+function init() {
+  myApp.jsonData = parseJson("textData");
+  const fieldObjects = getUniqueFieldObjs(myApp.jsonData);
+  myApp.init(fieldObjects);
+  myApp.fields = addFields("content");
+  myApp.fields = addBtns(myApp.fields);
+  applyBtnDefaults(myApp.fields);
+}
 
 function filterHiddenFields() {
   const hiddenValues = ["VisibleHidden", "DigitHidden", "dateHidden", "hidden"];
@@ -1011,24 +1021,21 @@ function saveFile(fileName) {
 
 function loadFile() {
   const fileInput = document.getElementById("fileInput");
-  const fileDisplayArea = document.getElementById("fileDisplayArea");
+  const fileDisplayArea = document.getElementById("textData");
 
   fileInput.addEventListener("change", loadJSONFile);
 
   function loadJSONFile() {
     const file = fileInput.files[0];
-    const textType = /text.*/;
 
-    if (file.type.match(textType)) {
-      const reader = new FileReader();
+    // load file 
+    // https://www.html5rocks.com/en/tutorials/file/dndfiles/
+    delContent("content");
+    fileDisplayArea.innerText = null;
 
-      reader.onload = function loadintoDisplay() {
-        fileDisplayArea.innerText = reader.result;
-      };
-      reader.readAsText(file);
-    } else {
-      fileDisplayArea.innerText = "File not supported!";
-    }
+    const parsedJson = JSON.parse(file);
+
+    fileDisplayArea.innerText = parsedJson;
   }
 }
 
