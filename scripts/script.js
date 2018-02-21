@@ -50,8 +50,6 @@ function Main() {
   addSeparatorDropdown();
   addDigitDropdown();
   saveFileBtn("data");
-
-  
 }
 
 // ======================================================================
@@ -1026,16 +1024,35 @@ function loadFile() {
   fileInput.addEventListener("change", loadJSONFile);
 
   function loadJSONFile() {
-    const file = fileInput.files[0];
+    const input = document.getElementById("fileInput");
+    let file = null;
+    const fr = new FileReader();
 
-    // load file 
-    // https://www.html5rocks.com/en/tutorials/file/dndfiles/
-    delContent("content");
-    fileDisplayArea.innerText = null;
+    if (typeof window.FileReader !== "function") {
+      alert("The file API isn't supported on this browser yet.");
+      return;
+    }
 
-    const parsedJson = JSON.parse(file);
+    if (!input) {
+      alert("Um, couldn't find the fileinput element.");
+    } else if (!input.files) {
+      alert("This browser doesn't seem to support the `files` property of file inputs.");
+    } else if (!input.files[0]) {
+      alert("Please select a file before clicking 'Load'");
+    } else {
+      file = input.files[0];
+      fr.onload = receivedText;
+      fr.readAsText(file);
+    }
 
-    fileDisplayArea.innerText = parsedJson;
+    function receivedText(e) {
+      const lines = e.target.result;
+      const newArr = JSON.parse(lines);
+      delContent("content");
+      fileDisplayArea.innerText = null;
+      fileDisplayArea.innerText = JSON.stringify(newArr);
+      init();
+    }
   }
 }
 
