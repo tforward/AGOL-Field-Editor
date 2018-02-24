@@ -1,9 +1,16 @@
 
+.flex-containerHeader{
+  display: flex;
+  flex-direction: column;
+  background-color: lightblue;
+  width: 70em;
+}
+
 .flex-container{
   display: inline-flex;
   flex-direction: column;
   background-color: lightblue;
-  width: 75%;
+  width: 100%;
 }
 
 .aligner {
@@ -155,7 +162,7 @@
 }
 
 .button{
-  background-color: #4CAF50; /* Green */
+  background-color: #0083DF; /* Green */
   border: none;
   color: white;
   padding: 6px 4px;
@@ -164,8 +171,12 @@
   display: inline-block;
 }
 
-.bigButton {
+.button:hover {
   background-color: #4CAF50;
+}
+
+.bigButton {
+  background-color: #0083DF;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -173,9 +184,79 @@
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin: 14px 2px;
   cursor: pointer;
 }
+
+.bigButton:hover {
+  background-color: #4CAF50;
+}
+
+h4{
+  top: 10px;
+  position: relative;
+  padding-left: 1em;
+
+}
+
+/* ============================================================================= */
+/* Modal */
+/* ============================================================================= */
+
+.modal-frame {
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal {
+  display: block;
+  background-color: #fefefe;
+  margin: 5% auto; /* 15% from the top and centered */
+  height: 20%;
+  border: 1px solid #888;
+  width: 35%; /* Could be more or less, depending on screen size */
+}
+
+.textArea {
+  min-height: 15em;
+  max-height: 55em;
+  margin: 0;
+  padding: 0.5em;
+  border: none;
+  resize: vertical;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1%;
+  border-bottom: 1px solid black;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.flexIt {
+  flex: 1;
+}
+
+.btn {
+  margin: 5px;
+}
+
+h2 {
+  padding-left: 1em; 
+}
+
 
 
 /* ============================================================================= */
@@ -186,7 +267,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  padding: 0.1em 0em 0.1em 0.5em;
+  padding-left: 1em;
 }
 
 .btnHolder{
@@ -291,12 +372,12 @@ display: block;
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropBtn {
-  background-color: #3e8e41;
+  background-color: #4CAF50;
 }
 
 .dropBtn{
 -webkit-font-smoothing: antialiased;
-background-color: lightgrey;
+background-color: #0083DF;
 border: none;
 display: inline-block;
 font-family: 'Montserrat', sans-serif;
@@ -353,6 +434,10 @@ transition: all 0.1s ease-out;
 
 .hidden{
 	display: none;
+}
+
+.visibleBlock{
+  display: block;
 }
 
 .hide{

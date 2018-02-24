@@ -50,11 +50,48 @@ function Main() {
   addSeparatorDropdown();
   addDigitDropdown();
   saveFileBtn("data");
+  viewJsonData();
+  closeJsonData();
+  copyBtnEvent();
 }
 
 // ======================================================================
 // Filters
 // ======================================================================
+
+function copyBtnEvent() {
+  const btnCopy = document.getElementById("btnCopy");
+  btnCopy.addEventListener("click", copyToClipboard);
+}
+
+function copyToClipboard() {
+  const copyText = document.getElementById("jsonData");
+  copyText.select();
+  document.execCommand("Copy");
+  /* Alert the copied text */
+  alert("Copied JSON Data.");
+}
+
+function viewJsonData() {
+  const btnJson = document.getElementById("btnJson");
+  btnJson.addEventListener("click", viewJson);
+}
+
+function closeJsonData() {
+  const btnJson = document.getElementById("btnJsonClose");
+  btnJson.addEventListener("click", hideJson);
+}
+
+function hideJson() {
+  const modal = document.getElementById("modalFrame");
+  modal.className = modal.className.replace(" visibleBlock", " hidden");
+}
+
+
+function viewJson() {
+  const modal = document.getElementById("modalFrame");
+  modal.className = modal.className.replace(" hidden", " visibleBlock");
+}
 
 function delContent(id) {
   const content = document.getElementById(id);
@@ -65,7 +102,7 @@ function delContent(id) {
 }
 
 function init() {
-  myApp.jsonData = parseJson("textData");
+  myApp.jsonData = parseJson("jsonData");
   const fieldObjects = getUniqueFieldObjs(myApp.jsonData);
   myApp.init(fieldObjects);
   myApp.fields = addFields("content");
@@ -406,7 +443,6 @@ function dropdownDelegator() {
 function addLabelDropdown() {
   const labelDrop = dropdownDelegator();
   labelDrop.init("labelDrop");
-  labelDrop.name("Labels");
   const item1 = labelDrop.addItem("span", "Lowercase", toLower);
   const item2 = labelDrop.addItem("span", "Uppercase", toUpper);
   const item3 = labelDrop.addItem("span", "Titlecase", toTitleCase);
@@ -418,7 +454,6 @@ function addLabelDropdown() {
 function addVisibilityDropdown() {
   const dropdown = dropdownDelegator();
   dropdown.init("visibilityDrop");
-  dropdown.name("Visibility");
   const item1 = dropdown.addItem("span", "Visibility Off", setAllVisible, false);
   const item2 = dropdown.addItem("span", "Visibility On", setAllVisible, true);
   dropdown.append([item1, item2]);
@@ -427,8 +462,6 @@ function addVisibilityDropdown() {
 function addDateDropdown() {
   const dateDrop = dropdownDelegator();
   dateDrop.init("dateDrop");
-  dateDrop.name("Dates");
-
   const dateArry = dateArray();
   const fragment = document.createDocumentFragment();
   dateArry.forEach((data) => {
@@ -446,7 +479,6 @@ function addDateDropdown() {
 function addSeparatorDropdown() {
   const dropdown = dropdownDelegator();
   dropdown.init("separatorDrop");
-  dropdown.name("Separator");
   const item1 = dropdown.addItem("span", "Separator Off", setAllSeperators, false);
   const item2 = dropdown.addItem("span", "Separator On", setAllSeperators, true);
   dropdown.append([item1, item2]);
@@ -455,7 +487,6 @@ function addSeparatorDropdown() {
 function addDigitDropdown() {
   const dropdown = dropdownDelegator();
   dropdown.init("digitDrop");
-  dropdown.name("Digits");
   const item1 = digitContentAll(setAllDigits);
   dropdown.append([item1]);
 }
@@ -1019,7 +1050,7 @@ function saveFile(fileName) {
 
 function loadFile() {
   const fileInput = document.getElementById("fileInput");
-  const fileDisplayArea = document.getElementById("textData");
+  const fileDisplayArea = document.getElementById("jsonData");
 
   fileInput.addEventListener("change", loadJSONFile);
 
