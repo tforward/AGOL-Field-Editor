@@ -1,11 +1,11 @@
-# ArcGIS Online JSON Field Editor
+# [ArcGIS Online JSON Field Editor](https://tforward.github.io/AGOL-Field-Editor/)
 
 Edited your JSON field configurations quickly.
 
 ## Getting Started
 
 * Save a copy of your [ArcGIS Online Assistant](https://ago-assistant.esri.com/) JSON file to disk, also serves as back-up.
-* Load the file into the ArcGIS Online JSON Field Editor.
+* Load the file into the [ArcGIS Online JSON Field Editor](https://tforward.github.io/AGOL-Field-Editor/).
 * Configure how you want to fields to be used.
 * Save the JSON file.
 * Re-upload back into [ArcGIS Online Assistant](https://ago-assistant.esri.com/) and save your edits. 
