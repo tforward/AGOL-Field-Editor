@@ -4,7 +4,11 @@ Edited your JSON field configurations quickly.
 
 ## Getting Started
 
-Load your own ArcGIS online field data JSON file, make changes, save the file and upload back into ArcGIS Online using the [ArcGIS Online Assistant](https://ago-assistant.esri.com/)
+* Save a copy of your [ArcGIS Online Assistant](https://ago-assistant.esri.com/) JSON file to disk, also serves as back-up.
+* Load the file into the ArcGIS Online JSON Field Editor.
+* Configure how you want to fields to be used.
+* Save the JSON file.
+* Re-upload back into [ArcGIS Online Assistant](https://ago-assistant.esri.com/) and save your edits. 
 
 ### Key Features
 
@@ -18,20 +22,14 @@ Quickly edit your field configurations for:
 * Load and apply a JSON configuration file to apply to all fields where match.
 * Filters for fields settings.
 
-### How to use
-* Save a copy of your ArcGIS Online Assistant JSON file to disk, also serves as back-up.
-* Load the file into the ArcGIS Online JSON Field Editor.
-* Configure how you want to fields to be used.
-* Save the JSON file.
-* Re-upload back into ArcGIS Online Assistant and save your edits. 
-
 ### Prerequisites
 
-Use of the ArcGIS online Assistant and how to get to view your JSON data there.
+Use of the [ArcGIS Online Assistant](https://ago-assistant.esri.com/) and how to get to view your JSON data there.
 
 ## FAQ
 
 Q: When I view the raw JSON it’s all compacted, aka Minified.
+
 A: Use an online JSON Beautifier to change this, like this one [JSONFormatter](https://jsonformatter.org/)
 
 ## Notes
@@ -52,4 +50,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* StackExchange for helping me anytime was in a bind
+* [StackExchange](https://stackexchange.com/) for helping me anytime was in a bind
