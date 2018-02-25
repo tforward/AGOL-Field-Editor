@@ -1,56 +1,46 @@
 # ArcGIS Online JSON Field Editor
 
-Edited your field configurations quickly.
+Edited your JSON field configurations quickly.
 
 ## Getting Started
 
-Test out using the sample data to get a feel for how the tool works. Or load your own ArcGIS online field data JSON file, once changes have been made save the file and then upload back into ArcGIS Online using the ArcGIS Online Assistant.
+Load your own ArcGIS online field data JSON file, make changes, save the file and upload back into ArcGIS Online using the [ArcGIS Online Assistant](https://ago-assistant.esri.com/)
+
+### Key Features
+
+Quickly edit your field configurations for:
+* Labels
+* Visibility
+* Digital Separators
+* Dates
+* Decimal Places
+* Save/Load you field configurations settings.
+* Load and apply a JSON configuration file to apply to all fields where match.
+* Filters for fields settings.
+
+### How to use
+* Save a copy of your ArcGIS Online Assistant JSON file to disk, also serves as back-up.
+* Load the file into the ArcGIS Online JSON Field Editor.
+* Configure how you want to fields to be used.
+* Save the JSON file.
+* Re-upload back into ArcGIS Online Assistant and save your edits. 
 
 ### Prerequisites
 
 Use of the ArcGIS online Assistant and how to get to view your JSON data there.
 
-```
-Give examples
-```
+## FAQ
 
-### Installing
+Q: When I view the raw JSON it’s all compacted, aka Minified.
+A: Use an online JSON Beautifier to change this, like this one [JSONFormatter](https://jsonformatter.org/)
 
-A step by step series of examples that tell you have to get a development env running
+## Notes
+* This tool has no affiliation with ESRI
+* This tool applies rules to all fields with the same fieldname. For example if you have three layers with the fieldname “TYPE” it will apply the rules across all of them. For editing this detailed level of manually edit the JSON file after you’ve made the changes with this tool first.
 
-Say what the step will be
+## Questions? Need Help? Found a bug, or want to request a new feature?
 
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
+Please submit a ticket on this GitHub. And, of course, feel free to submit pull requests with bug fixes or changes to the dev branch.
 
 ## Authors
 
@@ -62,4 +52,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* StackExchange for helping me when was in bind
+* StackExchange for helping me anytime was in a bind
