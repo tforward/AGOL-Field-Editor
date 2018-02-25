@@ -1,10 +1,9 @@
 "use strict";
 
 // This JS file:
-//  - Uses the AirBnb Style Guide "mostly"...
+//  - Uses the AirBnb Style Guide "mostly"
 //  - Uses the OOLO Design Pattern, see link below for more info:
 //     - https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md
-
 
 const myApp = FieldApp();
 
@@ -43,62 +42,17 @@ function Main() {
   const toggleDate = Object.create(ToggleBtnDelegator());
   toggleDate.setup("toggleDate", toggleDateAction);
 
-  loadFile();
+  loadFile(receivedText, "fileInput");
+  loadFile(receivedConfig, "configInput");
   addLabelDropdown();
   addVisibilityDropdown();
   addDateDropdown();
   addSeparatorDropdown();
   addDigitDropdown();
   saveFileBtn("data");
-  viewJsonData();
-  closeJsonData();
-  copyBtnEvent();
-}
-
-// ======================================================================
-// Filters
-// ======================================================================
-
-function copyBtnEvent() {
-  const btnCopy = document.getElementById("btnCopy");
-  btnCopy.addEventListener("click", copyToClipboard);
-}
-
-function copyToClipboard() {
-  const copyText = document.getElementById("jsonData");
-  copyText.select();
-  document.execCommand("Copy");
-  /* Alert the copied text */
-  alert("Copied JSON Data.");
-}
-
-function viewJsonData() {
-  const btnJson = document.getElementById("btnJson");
-  btnJson.addEventListener("click", viewJson);
-}
-
-function closeJsonData() {
-  const btnJson = document.getElementById("btnJsonClose");
-  btnJson.addEventListener("click", hideJson);
-}
-
-function hideJson() {
-  const modal = document.getElementById("modalFrame");
-  modal.className = modal.className.replace(" visibleBlock", " hidden");
-}
-
-
-function viewJson() {
-  const modal = document.getElementById("modalFrame");
-  modal.className = modal.className.replace(" hidden", " visibleBlock");
-}
-
-function delContent(id) {
-  const content = document.getElementById(id);
-
-  while (content.firstChild) {
-    content.removeChild(content.firstChild);
-  }
+  // viewJsonData();
+  // closeJsonData();
+  // copyBtnEvent();
 }
 
 function init() {
@@ -109,6 +63,10 @@ function init() {
   myApp.fields = addBtns(myApp.fields);
   applyBtnDefaults(myApp.fields);
 }
+
+// ======================================================================
+// Filters
+// ======================================================================
 
 function filterHiddenFields() {
   const hiddenValues = ["VisibleHidden", "DigitHidden", "dateHidden", "hidden"];
@@ -125,25 +83,6 @@ function filterHiddenFields() {
   }
   const filtered = myApp.fields.map(lyr => filterHidden(lyr));
   return filtered;
-}
-
-function processData(jsonData) {
-  const reduceFields = reduceFieldObjs();
-  const processedJson = reassignFieldProps(jsonData, reduceFields);
-  return JSON.stringify(processedJson);
-}
-
-function reassignFieldProps(jsonData, reduceFields) {
-  jsonData.layers.forEach((lyr) => {
-    lyr.popupInfo.fieldInfos.forEach((field) => {
-      const processed = reduceFields[field.fieldName];
-      field.format = processed.format;
-      field.label = processed.label;
-      field.tooltip = processed.tooltip;
-      field.visible = processed.visible;
-    });
-  });
-  return jsonData;
 }
 
 function reduceFieldObjs() {
@@ -197,6 +136,25 @@ function getUniqueFieldObjs(jsonData) {
       return fieldObj;
     }, {});
   return fieldObjs;
+}
+
+function processData(jsonData) {
+  const reduceFields = reduceFieldObjs();
+  const processedJson = reassignFieldProps(jsonData, reduceFields);
+  return JSON.stringify(processedJson);
+}
+
+function reassignFieldProps(jsonData, reduceFields) {
+  jsonData.layers.forEach((lyr) => {
+    lyr.popupInfo.fieldInfos.forEach((field) => {
+      const processed = reduceFields[field.fieldName];
+      field.format = processed.format;
+      field.label = processed.label;
+      field.tooltip = processed.tooltip;
+      field.visible = processed.visible;
+    });
+  });
+  return jsonData;
 }
 
 // ======================================================================
@@ -491,7 +449,6 @@ function addDigitDropdown() {
   dropdown.append([item1]);
 }
 
-
 // ======================================================================
 // Filter Buttons
 // ======================================================================
@@ -605,7 +562,6 @@ function btnAction(btn, field) {
   }
 }
 
-
 function setBtnIdActive(btn, field) {
   if (btn.toggle === 1) {
     myApp.activeBtn = btn;
@@ -615,7 +571,6 @@ function setBtnIdActive(btn, field) {
     myApp.activeField = null;
   }
 }
-
 
 function resetActiveBtn(currentBtn) {
   if (currentBtn !== myApp.activeBtn) {
@@ -636,7 +591,6 @@ function resetActiveBtn(currentBtn) {
     }
   }
 }
-
 
 function addFields(elemId) {
   // TODO CAN USE FRAGEMENT HERE
@@ -703,7 +657,6 @@ function addBtn(field, title, src, alt, name, fragment) {
 // ======================================================================
 // Label Button
 // ======================================================================
-
 
 function showLabel(btn, field) {
   if (btn.toggle === 1) {
@@ -830,7 +783,6 @@ function dateContent(field, btn) {
 }
 
 function dateDropdown(field, elem) {
-  // console.log(elem.toggle)
   if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
     if (elem.toggle === 1) {
       field.dropdown.className = "dropdown";
@@ -891,6 +843,33 @@ function setAndStyleAllDates(dateType) {
   // maybe close the dropdown window on click
 }
 
+function applyBtnDefaults(fields) {
+  fields.forEach((field) => {
+    field.btns.forEach(btn => btnTypeSorter(field, btn));
+  });
+}
+
+function btnTypeSorter(field, btn) {
+  switch (btn.elem.className) {
+    case "Label":
+      btnLabelStyle(btn.elem);
+      break;
+    case "Visiblity":
+      btnVisibilityStyle(field, btn.elem);
+      break;
+    case "Seperator":
+      btnSeparatorStyle(field, btn.elem);
+      break;
+    case "Date":
+      btnDateStyle(field, btn.elem);
+      break;
+    case "Digit":
+      btnDecimStyle(field, btn.elem);
+      break;
+    // no default
+  }
+}
+
 // ======================================================================
 //  Digit Button
 // ======================================================================
@@ -921,7 +900,6 @@ function digitContentAll(func) {
   contentDiv.appendChild(fragment);
   return contentDiv;
 }
-
 
 function digitContent(field, parentbtn, func) {
   const contentDiv = document.createElement("div");
@@ -983,33 +961,6 @@ function digitSetBtn(field, input, parentbtn) {
   btnDecimStyle(field, parentbtn);
 }
 
-function applyBtnDefaults(fields) {
-  fields.forEach((field) => {
-    field.btns.forEach(btn => btnTypeSorter(field, btn));
-  });
-}
-
-function btnTypeSorter(field, btn) {
-  switch (btn.elem.className) {
-    case "Label":
-      btnLabelStyle(btn.elem);
-      break;
-    case "Visiblity":
-      btnVisibilityStyle(field, btn.elem);
-      break;
-    case "Seperator":
-      btnSeparatorStyle(field, btn.elem);
-      break;
-    case "Date":
-      btnDateStyle(field, btn.elem);
-      break;
-    case "Digit":
-      btnDecimStyle(field, btn.elem);
-      break;
-    // no default
-  }
-}
-
 // ======================================================================
 //  Set Functions
 // ======================================================================
@@ -1048,14 +999,13 @@ function saveFile(fileName) {
   saveAs(file);
 }
 
-function loadFile() {
-  const fileInput = document.getElementById("fileInput");
-  const fileDisplayArea = document.getElementById("jsonData");
+function loadFile(func, id) {
+  const fileInput = document.getElementById(id);
 
   fileInput.addEventListener("change", loadJSONFile);
 
   function loadJSONFile() {
-    const input = document.getElementById("fileInput");
+    const input = document.getElementById(id);
     let file = null;
     const fr = new FileReader();
 
@@ -1072,19 +1022,34 @@ function loadFile() {
       alert("Please select a file before clicking 'Load'");
     } else {
       file = input.files[0];
-      fr.onload = receivedText;
+      fr.onload = func;
       fr.readAsText(file);
     }
-
-    function receivedText(e) {
-      const lines = e.target.result;
-      const newArr = JSON.parse(lines);
-      delContent("content");
-      fileDisplayArea.innerText = null;
-      fileDisplayArea.innerText = JSON.stringify(newArr);
-      init();
-    }
   }
+}
+
+function receivedText(e) {
+  const fileDisplayArea = document.getElementById("jsonData");
+  const lines = e.target.result;
+  const newArr = JSON.parse(lines);
+  delContent("content");
+  fileDisplayArea.innerText = null;
+  fileDisplayArea.innerText = JSON.stringify(newArr);
+  init();
+}
+
+function receivedConfig(e) {
+  const lines = e.target.result;
+  const newArr = JSON.parse(lines);
+  const configData = getUniqueFieldObjs(newArr);
+
+  // If the fieldName exists in the config apply the config
+  myApp.fields.forEach((field) => {
+    if (configData[field.obj.fieldName] !== undefined) {
+      field.obj = configData[field.obj.fieldName];
+    }
+  });
+  applyBtnDefaults(myApp.fields);
 }
 
 function findAttributeValue(collection, attrValue) {
@@ -1173,6 +1138,52 @@ function replaceClassname(propClass) {
   myApp.fields.forEach(i => i.elem.className =
         i.elem.className.replace(propClass, ""));
 }
+
+function delContent(id) {
+  const content = document.getElementById(id);
+
+  while (content.firstChild) {
+    content.removeChild(content.firstChild);
+  }
+}
+
+// ======================================================================
+//  Unused View JSON code
+// ======================================================================
+
+// function copyBtnEvent() {
+//   const btnCopy = document.getElementById("btnCopy");
+//   btnCopy.addEventListener("click", copyToClipboard);
+// }
+
+// function copyToClipboard() {
+//   const copyText = document.getElementById("jsonData");
+//   copyText.select();
+//   document.execCommand("Copy");
+//   /* Alert the copied text */
+//   alert("Copied JSON Data.");
+// }
+
+// function viewJsonData() {
+//   const btnJson = document.getElementById("btnJson");
+//   btnJson.addEventListener("click", viewJson);
+// }
+
+// function closeJsonData() {
+//   const btnJson = document.getElementById("btnJsonClose");
+//   btnJson.addEventListener("click", hideJson);
+// }
+
+// function hideJson() {
+//   const modal = document.getElementById("modalFrame");
+//   modal.className = modal.className.replace(" visibleBlock", " hidden");
+// }
+
+
+// function viewJson() {
+//   const modal = document.getElementById("modalFrame");
+//   modal.className = modal.className.replace(" hidden", " visibleBlock");
+// }
 
 // ======================================================================
 //  FileSaver.js
@@ -1366,5 +1377,4 @@ document.onreadystatechange = function onreadystatechange() {
     // Do something during loading [opitional]
   }
 };
-
 // ======================================================================

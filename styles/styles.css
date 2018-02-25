@@ -2,14 +2,14 @@
 .flex-containerHeader{
   display: flex;
   flex-direction: column;
-  background-color: lightblue;
+  background-color: #deebf7;
   width: 70em;
 }
 
 .flex-container{
   display: inline-flex;
   flex-direction: column;
-  background-color: lightblue;
+  background-color: #deebf7;
   width: 100%;
 }
 
@@ -48,6 +48,16 @@
   cursor: pointer;
 
 }  */
+
+#logo {
+  height: 3em;
+  padding-top: 0.5em;
+}
+
+.flexDis {
+  display: flex;
+  width: 27em;
+}
 
 .aligner-btn { 
   flex: 1 1 23%;
@@ -162,7 +172,7 @@
 }
 
 .button{
-  background-color: #0083DF; /* Green */
+  background-color: #3182bd;
   border: none;
   color: white;
   padding: 6px 4px;
@@ -176,7 +186,7 @@
 }
 
 .bigButton {
-  background-color: #0083DF;
+  background-color: #3182bd;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -255,6 +265,8 @@ h4{
 
 h2 {
   padding-left: 1em; 
+  margin-top: 0.5em;
+  margin-bottom: 0;
 }
 
 
@@ -377,7 +389,7 @@ display: block;
 
 .dropBtn{
 -webkit-font-smoothing: antialiased;
-background-color: #0083DF;
+background-color: #3182bd;
 border: none;
 display: inline-block;
 font-family: 'Montserrat', sans-serif;

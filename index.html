@@ -1,7 +1,7 @@
 <html lang="en">
 
 <head>
-  <title>Template</title>
+  <title>Arc Field Edit</title>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -4054,12 +4054,17 @@
 
   <div class="flex-containerHeader">
     <div id="header">
-        <h2>ArcGIS Online Field Editor</h2>
+
+        <div class="flexDis">
+          <h2 class="flexIt center">ArcGIS Online JSON Field Editor</h2> <img id="logo" src="images\logo.png" alt="Logo">
+        </div>
 
         <div class="row">
-          <label class="bigButton center">Load<input type="file" id="fileInput" class="hidden"></label>
-          <button id="btnSave" class="bigButton" type="button">Save</button>
-          <button id="btnJson" class="bigButton" type="button">View JSON</button>
+          <label class="bigButton center" title="Load JSON Data from disk">LOAD<input type="file" id="fileInput" class="hidden"></label>
+          <button id="btnSave" title="Save JSON Data from disk" class="bigButton" type="button">SAVE</button>
+          <label class="bigButton center" title="Load JSON and apply to current data">APPLY CONFIG<input type="file" id="configInput" class="hidden"></label>
+          <button id="btnJson" class="bigButton hidden" type="button">VIEW JSON</button>
+
     
           <h4>Filters</h4>
           <div id="triState" class="btnHolder">
