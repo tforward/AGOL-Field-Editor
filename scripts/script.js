@@ -121,9 +121,21 @@ function parseJson(data) {
   return JSON.parse(textData);
 }
 
+function getLayerObject(jsonData) {
+  let layers = null;
+  if (Object.prototype.hasOwnProperty.call(jsonData, "operationalLayers")) {
+    layers = jsonData.operationalLayers;
+  } else
+  if (Object.prototype.hasOwnProperty.call(jsonData, "layers")) {
+    layers = jsonData.layers;
+  }
+  return layers;
+}
+
 function getUniqueFieldObjs(jsonData) {
   const fieldNamesSet = new Set();
-  const fieldObjs = jsonData.layers
+  const layers = getLayerObject(jsonData);
+  const fieldObjs = layers
     .reduce((fieldObj, lyr) => {
       // Gets a unique field object for each field by fieldname
       // fieldName = object
@@ -145,7 +157,8 @@ function processData(jsonData) {
 }
 
 function reassignFieldProps(jsonData, reduceFields) {
-  jsonData.layers.forEach((lyr) => {
+  const layers = getLayerObject(jsonData);
+  layers.forEach((lyr) => {
     lyr.popupInfo.fieldInfos.forEach((field) => {
       const processed = reduceFields[field.fieldName];
       field.format = processed.format;
@@ -729,10 +742,12 @@ function btnVisibilityStyle(field, elem) {
 function btnSeparatorStyle(field, btn) {
   const imgNode = btn.firstElementChild;
 
-  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
-    imgNode.src = field.obj.format.digitSeparator === false ? "images/comma_off.png" : "images/comma_on.png";
-    imgNode.alt = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
-    imgNode.title = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
+  if (field.obj.format !== undefined && field.obj.format !== null) {
+    if (Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
+      imgNode.src = field.obj.format.digitSeparator === false ? "images/comma_off.png" : "images/comma_on.png";
+      imgNode.alt = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
+      imgNode.title = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
+    }
   } else {
     imgNode.src = "images/comma_na.png";
     imgNode.alt = "N/A";
@@ -806,23 +821,24 @@ function btnDateStyle(field, elem) {
     "shortDateLEShortTime", "shortDateShortTime24", "shortDateLEShortTime24",
     "shortDateShortTime24", "shortDateLEShortTime24"];
 
-  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
-    const d = field.obj.format.dateFormat;
-
-    if (dateTime.indexOf(d) > -1) {
-      imgNode.src = "images/dateTime.png";
-      imgNode.alt = d;
-      imgNode.title = d;
-    } else if (date.indexOf(d) > -1) {
-      imgNode.src = "images/date.png";
-      imgNode.alt = d;
-      imgNode.title = d;
+  if (field.obj.format !== undefined && field.obj.format !== null) {
+    if (Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
+      const d = field.obj.format.dateFormat;
+      if (dateTime.indexOf(d) > -1) {
+        imgNode.src = "images/dateTime.png";
+        imgNode.alt = d;
+        imgNode.title = d;
+      } else if (date.indexOf(d) > -1) {
+        imgNode.src = "images/date.png";
+        imgNode.alt = d;
+        imgNode.title = d;
+      }
+    } else {
+      imgNode.src = "images/date_na.png";
+      imgNode.alt = "N/A";
+      imgNode.title = "N/A";
+      imgNode.className = "notApplicable";
     }
-  } else {
-    imgNode.src = "images/date_na.png";
-    imgNode.alt = "N/A";
-    imgNode.title = "N/A";
-    imgNode.className = "notApplicable";
   }
 }
 
@@ -940,11 +956,14 @@ function digitDropdown(field, btn) {
 
 function btnDecimStyle(field, elem) {
   const imgNode = elem.firstElementChild;
-  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "places")) {
-    const decimals = field.obj.format.places;
-    imgNode.src = "images/decimal.png";
-    imgNode.alt = `Has ${decimals} Decimal(s)`;
-    imgNode.title = `Has ${decimals} Decimal(s)`;
+
+  if (field.obj.format !== undefined && field.obj.format !== null) {
+    if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "places")) {
+      const decimals = field.obj.format.places;
+      imgNode.src = "images/decimal.png";
+      imgNode.alt = `Has ${decimals} Decimal(s)`;
+      imgNode.title = `Has ${decimals} Decimal(s)`;
+    }
   } else {
     imgNode.src = "images/na.png";
     imgNode.alt = "N/A";
@@ -952,7 +971,6 @@ function btnDecimStyle(field, elem) {
     imgNode.className = "notApplicable";
   }
 }
-
 
 function digitSetBtn(field, input, parentbtn) {
   setDigit(field.obj, input.value);
