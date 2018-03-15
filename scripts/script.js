@@ -556,9 +556,11 @@ function btnAction(btn, field) {
       btnSeparatorStyle(field, btn);
       break;
     case "Date":
-      if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
-        const content = dateContent(field, btn);
-        field.setDropdownContent(content);
+      if (field.obj.format !== undefined && field.obj.format !== null) {
+        if (Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
+          const content = dateContent(field, btn);
+          field.setDropdownContent(content);
+        }
       }
       dateDropdown(field, btn);
       btnDateStyle(field, btn);
@@ -798,19 +800,21 @@ function dateContent(field, btn) {
 }
 
 function dateDropdown(field, elem) {
-  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
-    if (elem.toggle === 1) {
-      field.dropdown.className = "dropdown";
-
-      const anchors = field.dropdown.getElementsByTagName("a");
-      const dateType = field.obj.format.dateFormat;
-      const index = findAttributeValue(anchors, dateType);
-      anchors[index].id = "date_selected";
-    } else {
-      field.dropdown.className = "hidden";
+  if (field.obj.format !== undefined && field.obj.format !== null) {
+    if (Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
+      if (elem.toggle === 1) {
+        field.dropdown.className = "dropdown";
+        const anchors = field.dropdown.getElementsByTagName("a");
+        const dateType = field.obj.format.dateFormat;
+        const index = findAttributeValue(anchors, dateType);
+        anchors[index].id = "date_selected";
+      } else {
+        field.dropdown.className = "hidden";
+      }
     }
   }
 }
+
 
 function btnDateStyle(field, elem) {
   const imgNode = elem.firstElementChild;
