@@ -106,7 +106,7 @@ function filterVisible(propClass, bool) {
 }
 
 function filterDigit(propClass, bool) {
-  myApp.fields.filter(field => (field.obj.format !== null &&
+  myApp.fields.filter(field => (field.obj.format !== null && field.obj.format !== undefined &&
     Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")))
     .filter(field => field.obj.format.digitSeparator === bool)
     .forEach(field => field.elem.className += propClass);
@@ -566,9 +566,11 @@ function btnAction(btn, field) {
       btnDateStyle(field, btn);
       break;
     case "Digit":
-      if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
-        const content = digitContent(field, btn, digitSetBtn);
-        field.setDropdownContent(content);
+      if (field.obj.format !== undefined && field.obj.format !== null) {
+        if (Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
+          const content = digitContent(field, btn, digitSetBtn);
+          field.setDropdownContent(content);
+        }
       }
       digitDropdown(field, btn);
       btnDecimStyle(field, btn);
@@ -725,7 +727,6 @@ function submitLabel(event) {
 
 function btnVisibilityStyle(field, elem) {
   const imgNode = elem.firstElementChild;
-
   if (field.obj.visible === true) {
     imgNode.src = "images/light_on.svg";
     imgNode.alt = "Visible";
@@ -744,12 +745,11 @@ function btnVisibilityStyle(field, elem) {
 function btnSeparatorStyle(field, btn) {
   const imgNode = btn.firstElementChild;
 
-  if (field.obj.format !== undefined && field.obj.format !== null) {
-    if (Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
-      imgNode.src = field.obj.format.digitSeparator === false ? "images/comma_off.png" : "images/comma_on.png";
-      imgNode.alt = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
-      imgNode.title = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
-    }
+  if (field.obj.format !== undefined && field.obj.format !== null &&
+    Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
+    imgNode.src = field.obj.format.digitSeparator === false ? "images/comma_off.png" : "images/comma_on.png";
+    imgNode.alt = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
+    imgNode.title = field.obj.format.digitSeparator === false ? "Separator Off" : "Separator On";
   } else {
     imgNode.src = "images/comma_na.png";
     imgNode.alt = "N/A";
@@ -825,24 +825,23 @@ function btnDateStyle(field, elem) {
     "shortDateLEShortTime", "shortDateShortTime24", "shortDateLEShortTime24",
     "shortDateShortTime24", "shortDateLEShortTime24"];
 
-  if (field.obj.format !== undefined && field.obj.format !== null) {
-    if (Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
-      const d = field.obj.format.dateFormat;
-      if (dateTime.indexOf(d) > -1) {
-        imgNode.src = "images/dateTime.png";
-        imgNode.alt = d;
-        imgNode.title = d;
-      } else if (date.indexOf(d) > -1) {
-        imgNode.src = "images/date.png";
-        imgNode.alt = d;
-        imgNode.title = d;
-      }
-    } else {
-      imgNode.src = "images/date_na.png";
-      imgNode.alt = "N/A";
-      imgNode.title = "N/A";
-      imgNode.className = "notApplicable";
+  if (field.obj.format !== undefined && field.obj.format !== null &&
+    Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")) {
+    const d = field.obj.format.dateFormat;
+    if (dateTime.indexOf(d) > -1) {
+      imgNode.src = "images/dateTime.png";
+      imgNode.alt = d;
+      imgNode.title = d;
+    } else if (date.indexOf(d) > -1) {
+      imgNode.src = "images/date.png";
+      imgNode.alt = d;
+      imgNode.title = d;
     }
+  } else {
+    imgNode.src = "images/date_na.png";
+    imgNode.alt = "N/A";
+    imgNode.title = "N/A";
+    imgNode.className = "notApplicable";
   }
 }
 
@@ -854,7 +853,7 @@ function setAndStyleDate(field, dateType, btn) {
 }
 
 function setAndStyleAllDates(dateType) {
-  myApp.fields.filter(field => (field.obj.format != null &&
+  myApp.fields.filter(field => (field.obj.format !== undefined && field.obj.format != null &&
     Object.prototype.hasOwnProperty.call(field.obj.format, "dateFormat")))
     .forEach(field => (field.obj.format.dateFormat = dateType));
   // TODO
@@ -949,7 +948,8 @@ function digitContent(field, parentbtn, func) {
 }
 
 function digitDropdown(field, btn) {
-  if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
+  if (field.obj.format !== null && field.obj.format !== undefined &&
+     Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")) {
     if (btn.toggle === 1) {
       field.dropdown.className = "dropdown";
     } else {
@@ -961,13 +961,12 @@ function digitDropdown(field, btn) {
 function btnDecimStyle(field, elem) {
   const imgNode = elem.firstElementChild;
 
-  if (field.obj.format !== undefined && field.obj.format !== null) {
-    if (field.obj.format !== null && Object.prototype.hasOwnProperty.call(field.obj.format, "places")) {
-      const decimals = field.obj.format.places;
-      imgNode.src = "images/decimal.png";
-      imgNode.alt = `Has ${decimals} Decimal(s)`;
-      imgNode.title = `Has ${decimals} Decimal(s)`;
-    }
+  if (field.obj.format !== undefined && field.obj.format !== null &&
+    Object.prototype.hasOwnProperty.call(field.obj.format, "places")) {
+    const decimals = field.obj.format.places;
+    imgNode.src = "images/decimal.png";
+    imgNode.alt = `Has ${decimals} Decimal(s)`;
+    imgNode.title = `Has ${decimals} Decimal(s)`;
   } else {
     imgNode.src = "images/na.png";
     imgNode.alt = "N/A";
@@ -992,7 +991,8 @@ function setVisiblity(fieldObj) {
 }
 
 function setSeperator(fieldObj) {
-  if (fieldObj.format !== null && Object.prototype.hasOwnProperty.call(fieldObj.format, "digitSeparator")) {
+  if (fieldObj.format !== null && fieldObj.format !== undefined &&
+    Object.prototype.hasOwnProperty.call(fieldObj.format, "digitSeparator")) {
     fieldObj.format.digitSeparator = !fieldObj.format.digitSeparator;
   }
 }
@@ -1023,31 +1023,32 @@ function saveFile(fileName) {
 
 function loadFile(func, id) {
   const fileInput = document.getElementById(id);
+  fileInput.addEventListener("change", loadJSONFile.bind(null, func, id, fileInput));
+}
 
-  fileInput.addEventListener("change", loadJSONFile);
+function loadJSONFile(func, id, fileInput) {
+  const input = document.getElementById(id);
+  let file = null;
+  const fr = new FileReader();
 
-  function loadJSONFile() {
-    const input = document.getElementById(id);
-    let file = null;
-    const fr = new FileReader();
-
-    if (typeof window.FileReader !== "function") {
-      alert("The file API isn't supported on this browser yet.");
-      return;
-    }
-
-    if (!input) {
-      alert("Um, couldn't find the fileinput element.");
-    } else if (!input.files) {
-      alert("This browser doesn't seem to support the `files` property of file inputs.");
-    } else if (!input.files[0]) {
-      alert("Please select a file before clicking 'Load'");
-    } else {
-      file = input.files[0];
-      fr.onload = func;
-      fr.readAsText(file);
-    }
+  if (typeof window.FileReader !== "function") {
+    alert("The file API isn't supported on this browser yet.");
+    return;
   }
+
+  if (!input) {
+    alert("Um, couldn't find the fileinput element.");
+  } else if (!input.files) {
+    alert("This browser doesn't seem to support the `files` property of file inputs.");
+  } else if (!input.files[0]) {
+    alert("Please select a file before clicking 'Load'");
+  } else {
+    file = input.files[0];
+    fr.onload = func;
+    fr.readAsText(file);
+  }
+  // Resets the fileInput file so that you can load file again
+  fileInput.value = "";
 }
 
 function receivedText(e) {
@@ -1134,7 +1135,7 @@ function toDefault() {
 function setAllSeperators(name, boolean) {
   const filtered = filterHiddenFields();
   myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
-    .filter(field => (field.obj.format != null &&
+    .filter(field => (field.obj.format != null && field.obj.format !== undefined &&
     Object.prototype.hasOwnProperty.call(field.obj.format, "digitSeparator")))
     .forEach(field => (field.obj.format.digitSeparator = boolean));
   applyBtnDefaults(myApp.fields);
@@ -1143,7 +1144,7 @@ function setAllSeperators(name, boolean) {
 function setAllDigits(input) {
   const filtered = filterHiddenFields();
   myApp.fields.filter(field => filtered.indexOf(field.fieldname) === -1)
-    .filter(field => (field.obj.format != null &&
+    .filter(field => (field.obj.format != null && field.obj.format !== undefined &&
       Object.prototype.hasOwnProperty.call(field.obj.format, "places")))
     .forEach(field => (field.obj.format.places = input.value));
   applyBtnDefaults(myApp.fields);
@@ -1163,7 +1164,6 @@ function replaceClassname(propClass) {
 
 function delContent(id) {
   const content = document.getElementById(id);
-
   while (content.firstChild) {
     content.removeChild(content.firstChild);
   }
